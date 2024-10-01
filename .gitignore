@@ -1,0 +1,5 @@
+.env
+.Renviron
+**.csv
+**.duckdb
+**.db
