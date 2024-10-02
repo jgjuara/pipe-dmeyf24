@@ -1,18 +1,26 @@
+
+#%%
 import duckdb
 import pandas as pd
 from pathlib import Path
 
+root_path = Path(__file__).parent.parent.resolve()
+
+root_path = root_path.as_posix() + '/'
+
+
 # Connect to DuckDB
-con = duckdb.connect(database='db/competencia_01.duckdb')
+con = duckdb.connect(database= root_path+'duckdb/competencia_01.duckdb')
 
 # Read CSV into DuckDB
-csv_path = Path('datasets/competencia_01_crudo.csv').resolve()
+data_path = 'datasets/competencia_01_crudo/*/*.parquet'
 
 con.execute(f"""
     CREATE OR REPLACE TABLE competencia_01_crudo AS
-    SELECT * FROM read_csv_auto('{csv_path}')
+    SELECT * FROM read_parquet('{root_path+data_path}', hive_partitioning = true)
 """)
 
+#%%
 # Create the competencia_01 table
 query = """
 create or replace table competencia_01 as

@@ -3,3 +3,5 @@
 **.csv
 **.duckdb
 **.db
+.Rproj**
+.Rhistory
