@@ -1,11 +1,13 @@
 .env
 .Renviron
-**.csv
-**.duckdb
-**.db
+*.duckdb
+*.db
+*.pyc
+**.png
 .Rproj**
 .Rhistory
 .Rproj.user
 pipe-dmeyf24.Rproj
 datasets/*.parquet
+datasets/*.csv
 datasets/*.csv
