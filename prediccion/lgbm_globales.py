@@ -19,9 +19,9 @@ import urllib
 dataset_file = 'competencia_01_aum_nonimp.parquet'
 mes_train = [202102, 202103]
 mes_test = 202104
-study_name = "lgbm_binaria_t2"
-boost_rounds = 500
-intentos = 5
+study_name = "lgbm_binaria_t3"
+boost_rounds = 10000
+intentos = 2
 optimizar = True
 min_envios = 8000
 max_envios = 16000
@@ -59,7 +59,7 @@ semillas = [int(x) for x in semillas.split(",")]
 ganancia_acierto = 273000
 costo_estimulo = 7000
 base_path = '../'
-dataset_path = base_path + 'datasets/'
+dataset_path = 'datasets/competencia_01_aum/' #base_path + 
 modelos_path = base_path + 'modelos/'
 db_path = base_path + 'db/'
 storage_name = "mysql+mysqldb://{u}:{p}@{ip}:3306/optuna_rf_db".format(p=urllib.parse.quote_plus(os.getenv("password")), u = os.getenv("usersrv"), ip = os.getenv("ip"))

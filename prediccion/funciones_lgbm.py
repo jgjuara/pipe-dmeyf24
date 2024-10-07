@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -13,9 +14,35 @@ import pickle
 import os
 from dotenv import load_dotenv
 import urllib
+import pyarrow.dataset as ds
+import lgbm_globales
+import duckdb
 
-def preparar_data(dataset_path, dataset_file, mes_train, mes_test):
-    data = pd.read_parquet(dataset_path + dataset_file)
+
+
+
+#%%
+
+
+def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols="lag2|variacion2"):
+
+
+    # Connect to DuckDB
+    con = duckdb.connect("tmp/tmp.db")
+
+    path = dataset_path+'*/*.parquet'
+
+
+    query = f"""
+        SELECT * FROM read_parquet('{path}', hive_partitioning = true)
+    """
+    data = con.execute(query).fetchdf()
+
+    con.close()
+
+    # data = pd.read_parquet(dataset_path + dataset_file)
+
+    data = data.loc[:, ~data.columns.str.contains(drop_cols)]
 
     data['clase_peso'] = 1.0
 
