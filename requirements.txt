@@ -7,3 +7,6 @@ lightgbm==4.4.0
 optuna==3.6.1
 pyarrow
 duckdb
+python-dotenv
+dask[dataframe]
+mysqlclient
