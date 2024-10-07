@@ -87,19 +87,19 @@ con.execute(f"""
 #%% variables ad hoc
 
 # Run safe division query
-con.execute("""
-    CREATE OR REPLACE TABLE competencia_01_columnas_adicionales AS
-    SELECT *, safe_division(mcuentas_saldo, lag(mcuentas_saldo, 1) over (partition by numero_de_cliente order by foto_mes)) - 1 as varx
-    FROM competencia_01
-""")
+# con.execute("""
+#     CREATE OR REPLACE TABLE competencia_01_columnas_adicionales AS
+#     SELECT *, safe_division(mcuentas_saldo, lag(mcuentas_saldo, 1) over (partition by numero_de_cliente order by foto_mes)) - 1 as varx
+#     FROM competencia_01
+# """)
 
 # Apply the queries for deciles, percentiles, quartiles to the table
-if querys_variaciones:
-    con.execute(f"""
-        CREATE OR REPLACE TABLE competencia_01_columnas_adicionales AS
-        SELECT *, {querys_ranks}
-        FROM competencia_01_columnas_adicionales
-    """)
+# if querys_variaciones:
+#     con.execute(f"""
+#         CREATE OR REPLACE TABLE competencia_01_columnas_adicionales AS
+#         SELECT *, {querys_ranks}
+#         FROM competencia_01_columnas_adicionales
+#     """)
 
 #%% calculo de variaciones
 

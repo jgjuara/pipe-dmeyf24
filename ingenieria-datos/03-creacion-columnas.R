@@ -2,15 +2,15 @@ library(duckdb)
 library(tidyverse)
 
 
-con <- dbConnect(duckdb(dbdir = "db/competencia_01.duckdb"))
+con <- dbConnect(duckdb(dbdir = "duckdb/competencia_01.duckdb"))
 
-source("workflow/macros_sql.R")
+source("ingenieria-datos/macros_sql.R")
 
 
 # data <- duckdb_read_csv(conn = con, "competencia_01",
 #                         files = "datasets/competencia_01_imp_nulos.csv")
 
-reglas <- read_csv("workflow/rankscsv.txt")
+reglas <- read_csv("aux-files/rankscsv.txt")
 
 # para los arboles lo unico importante es el orden
 # trabajar con ranks o deciles etc nos permite despreocuparnos de temas relacionados a cambios nominales de mes a mes
@@ -65,7 +65,7 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
                 select * 
                 from competencia_01"))
 
-dbExecute(con, glue::glue("create or replace table competencia_01 as  
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
                 {querys_prep}
                 from competencia_01_columnas_adicionales"))
@@ -91,7 +91,8 @@ columnas <- columnas[! grepl("numero_de_cliente|foto_mes", columnas)]
 
 
 querys_lag <- sapply(columnas, function(x) {
-  glue::glue("LAG({x}, 1) over (partition by numero_de_cliente order by foto_mes) AS lag1_{x}")
+  glue::glue("LAG({x}, 1) over (partition by numero_de_cliente order by foto_mes) AS lag1_{x},
+             LAG({x}, 2) over (partition by numero_de_cliente order by foto_mes) AS lag2_{x}")
 })
 
 querys_lag <- paste(querys_lag, collapse = ", ")
@@ -112,11 +113,12 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 # limite credito compra total ----------------------------------------------------
 
 query <- "Master_mlimitecompra + Visa_mlimitecompra as total_mlimitecompra,
-          lag1_Master_mlimitecompra + lag1_Visa_mlimitecompra as lag1_total_mlimitecompra"
+          lag1_Master_mlimitecompra + lag1_Visa_mlimitecompra as lag1_total_mlimitecompra,
+          lag2_Master_mlimitecompra + lag2_Visa_mlimitecompra as lag2_total_mlimitecompra"
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
-                {query},
+                {query}
                 from competencia_01_columnas_adicionales"))
 
 # limite financiacion total -----------------------------------------------
@@ -124,7 +126,8 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 # Visa_mfinanciacion_limite + Master_mfinanciacion_limite
 
 query <- "Visa_mfinanciacion_limite + Master_mfinanciacion_limite as total_mfinanciacion_limite,
-          lag1_Visa_mfinanciacion_limite + lag1_Master_mfinanciacion_limite as lag1_total_mfinanciacion_limite "
+          lag1_Visa_mfinanciacion_limite + lag1_Master_mfinanciacion_limite as lag1_total_mfinanciacion_limite,
+          lag2_Visa_mfinanciacion_limite + lag2_Master_mfinanciacion_limite as lag2_total_mfinanciacion_limite"
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
@@ -137,7 +140,8 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 # Master_msaldototal + Visa_msaldototal
 
 query <- "Master_msaldototal + Visa_msaldototal as total_msaldototal,
-          lag1_Master_msaldototal + lag1_Visa_msaldototal as lag1_total_msaldototal"
+          lag1_Master_msaldototal + lag1_Visa_msaldototal as lag1_total_msaldototal,
+          lag2_Master_msaldototal + lag2_Visa_msaldototal as lag2_total_msaldototal"
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
@@ -151,7 +155,8 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 
 
 query <- "mcuentas_saldo + minversion1_pesos + minversion2 + mplazo_fijo_dolares + mplazo_fijo_pesos as total_patrimonio,
-          lag1_mcuentas_saldo + lag1_minversion1_pesos + lag1_minversion2 + lag1_mplazo_fijo_dolares + lag1_mplazo_fijo_pesos as lag1_total_patrimonio"
+          lag1_mcuentas_saldo + lag1_minversion1_pesos + lag1_minversion2 + lag1_mplazo_fijo_dolares + lag1_mplazo_fijo_pesos as lag1_total_patrimonio,
+          lag2_mcuentas_saldo + lag2_minversion1_pesos + lag2_minversion2 + lag2_mplazo_fijo_dolares + lag2_mplazo_fijo_pesos as lag2_total_patrimonio"
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
@@ -163,11 +168,12 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 # cpayroll2_trx + cpayroll_trx 
 
 query <- "cpayroll2_trx + cpayroll_trx as total_payroll,
-          lag1_cpayroll2_trx + lag1_cpayroll_trx as lag1_total_payroll"
+          lag1_cpayroll2_trx + lag1_cpayroll_trx as lag1_total_payroll,
+          lag2_cpayroll2_trx + lag2_cpayroll_trx as lag2_total_payroll"
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
-                {query},
+                {query}
                 from competencia_01_columnas_adicionales"))
 
 # prestamos  ---------------------------------------------------
@@ -175,11 +181,12 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 # mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios
 
 query <- "mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios as total_prestamos,
-          lag1_mprestamos_personales + lag1_mprestamos_prendarios + lag1_mprestamos_hipotecarios as lag1_total_prestamos"
+          lag1_mprestamos_personales + lag1_mprestamos_prendarios + lag1_mprestamos_hipotecarios as lag1_total_prestamos,
+          lag2_mprestamos_personales + lag2_mprestamos_prendarios + lag2_mprestamos_hipotecarios as lag2_total_prestamos"
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
-                {query},
+                {query}
                 from competencia_01_columnas_adicionales"))
 
 # vars falopa -------------------------------------------------------------
@@ -190,7 +197,7 @@ query <- "cliente_edad - lag1_cliente_edad as cumpleanios"
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
-                {query},
+                {query}
                 from competencia_01_columnas_adicionales"))
 
 # var cliente_antiguedad binned (responde a quienes entraron juntos)
@@ -215,15 +222,16 @@ columnas <- columnas[! grepl("lag1|cumpleanios", columnas)]
 # })
 querys_variaciones <- sapply(columnas,
                              function(x) {
-                               glue::glue("safe_division({x}, lag({x}, 1) over (partition by numero_de_cliente order by foto_mes)) - 1 AS variacion_{x}")
+                               glue::glue("safe_division({x}, lag({x}, 1) over (partition by numero_de_cliente order by foto_mes)) - 1 AS variacion1_{x},
+                                          safe_division(lag({x}, 1) over (partition by numero_de_cliente order by foto_mes), lag({x}, 2) over (partition by numero_de_cliente order by foto_mes)) - 1 AS variacion2_{x}")
                                })
 
 # querys_reg <- paste(querys_reg, collapse = ", ")
 
 querys_variaciones <- paste(querys_variaciones, collapse = ", ")
 
-dbGetQuery(con, glue::glue("select safe_division(mcuentas_saldo, lag(mcuentas_saldo, 1) over (partition by numero_de_cliente order by foto_mes)) - 1 as varx
-                from competencia_01_columnas_adicionales"))
+# dbGetQuery(con, glue::glue("select safe_division(mcuentas_saldo, lag(mcuentas_saldo, 1) over (partition by numero_de_cliente order by foto_mes)) - 1 as varx
+#                 from competencia_01_columnas_adicionales"))
 
   dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
                 select *, 
@@ -254,8 +262,8 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
   
 # exportcsv_query <-  "COPY competencia_01_columnas_adicionales TO 'datasets/competencia_01_aum.csv' (HEADER, DELIMITER ',');"
 # 
-# exportparquet_query <-  "COPY competencia_01_columnas_adicionales TO 'datasets/competencia_01_aum.parquet' (FORMAT PARQUET);"
-# dbExecute(con, exportparquet_query)
+exportparquet_query <-  "COPY competencia_01_columnas_adicionales TO 'datasets/competencia_01_aum.parquet' (FORMAT PARQUET);"
+dbExecute(con, exportparquet_query)
 # dbExecute(con, exportcsv_query)
 
 dbDisconnect(con)

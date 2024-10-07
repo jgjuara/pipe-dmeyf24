@@ -9,8 +9,8 @@ con <- dbConnect(
   port = 3306
 )
 
-tabla <- "competencia_01_aum_nonimp"
+tabla <- "datasets/competencia_01_aum.parquet"
 
-df <- arrow::read_parquet(glue::glue("datasets/{tabla}.parquet"))
+df <- arrow::read_parquet(glue::glue("{tabla}"))
 
-dbWriteTable(conn = con, name = "datos_")
+dbWriteTable(conn = con, value = df, name = "competencia_01_aum")

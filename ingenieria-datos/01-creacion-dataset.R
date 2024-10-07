@@ -1,11 +1,15 @@
 library(duckdb)
+
 # library(duckplyr)
 
-con <- dbConnect(duckdb(dbdir = "db/competencia_01.duckdb"))
+root_path = here::here()
+data_path = "datasets/competencia_01_crudo/*/*.parquet"
 
-data <- duckdb_read_csv(conn = con, "competencia_01_crudo",
-                        files = here::here("datasets",
-                                           "competencia_01_crudo.csv"))
+con <- dbConnect(duckdb(dbdir = "duckdb/competencia_01.duckdb"))
+
+dbExecute(con, 
+          glue::glue("CREATE OR REPLACE TABLE competencia_01_crudo AS
+          SELECT * FROM read_parquet('{data_path}', hive_partitioning = true)"))
 
 query <- "create or replace table competencia_01 as
 with periodos as (
