@@ -15,15 +15,15 @@
 # 
 # dbWriteTable(conn = con, value = df, name = "competencia_01_aum")
 
-library(arrow)
+# library(arrow)
 
-competencia_01_aum <- open_dataset("datasets/competencia_01_aum.parquet")
-
-
-tamanio <- file.size("datasets/competencia_01_aum.parquet")
+# competencia_01_aum <- open_dataset("datasets/competencia_01_aum.parquet")
 
 
-competencia_01_aum %>% 
-  group_by(foto_mes) %>% 
-  write_dataset(., path = "datasets/competencia_01_aum/",
-                max_rows_per_file = 42000)
+# tamanio <- file.size("datasets/competencia_01_aum.parquet")
+
+
+# competencia_01_aum %>% 
+#   group_by(foto_mes) %>% 
+#   write_dataset(., path = "datasets/competencia_01_aum/",
+#                 max_rows_per_file = 42000)
