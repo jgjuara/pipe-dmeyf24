@@ -5,3 +5,7 @@
 **.db
 .Rproj**
 .Rhistory
+.Rproj.user
+pipe-dmeyf24.Rproj
+datasets/*.parquet
+datasets/*.csv
