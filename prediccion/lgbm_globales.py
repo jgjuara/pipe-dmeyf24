@@ -16,15 +16,15 @@ import urllib
 # Load environment variables from .env file
 
 # parametros a setear
-dataset_file = 'competencia_01_aum_nonimp.parquet'
+dataset_file = 'competencia_01_aum.parquet'
 mes_train = [202102, 202103]
 mes_test = 202104
 study_name = "lgbm_binaria_t3"
 boost_rounds = 10000
 intentos = 2
 optimizar = True
-min_envios = 8000
-max_envios = 16000
+min_envios = 10000
+max_envios = 13000
 paso_envios = 500
 
 #
@@ -58,8 +58,8 @@ semillas = os.getenv("semillas")
 semillas = [int(x) for x in semillas.split(",")]
 ganancia_acierto = 273000
 costo_estimulo = 7000
-base_path = '../'
-dataset_path = 'datasets/competencia_01_aum/' #base_path + 
+base_path = ''
+dataset_path = base_path +  'datasets/competencia_01_aum/' #
 modelos_path = base_path + 'modelos/'
 db_path = base_path + 'db/'
 storage_name = "mysql+mysqldb://{u}:{p}@{ip}:3306/optuna_rf_db".format(p=urllib.parse.quote_plus(os.getenv("password")), u = os.getenv("usersrv"), ip = os.getenv("ip"))

@@ -37,11 +37,15 @@ def backtesting_lgbm():
   
     top_5 = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:5]['number'].tolist()
 
+    print("Testing top 5 trials:", top_5)
+
     ganancia = np.where(y_test_binaria1 == 1, lgbm_globales.ganancia_acierto, 0) - np.where(y_test_binaria1 == 0, lgbm_globales.costo_estimulo, 0)
 
     for i in top_5:
 
         trial_params = study.trials[i].params
+
+        print("Testing trial:", i, "params:", trial_params)
         
         best_iter = study.trials[i].user_attrs['best_iter']
         
@@ -80,8 +84,9 @@ def backtesting_lgbm():
             df_cut_point['public_cum'] = df_cut_point['public'].cumsum()
             df_cut_point['private_cum'] = df_cut_point['private'].cumsum()
 
+            df_cut_point.to_csv('testing/' + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla), index=False)
 
-            df_cut_point.to_csv(lgbm_globales.dataset_path + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla), index=False)
+            print("Archivo testing guardado: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
 
 #%%
 backtesting_lgbm()

@@ -26,23 +26,17 @@ import duckdb
 
 def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols="lag2|variacion2"):
 
+    print('Preparando data...')
 
-    # Connect to DuckDB
-    con = duckdb.connect("tmp/tmp.db")
+    dataset = ds.dataset(dataset_path, format="parquet", partitioning="hive")
 
-    path = dataset_path+'*/*.parquet'
+    columnas = dataset.schema.names
 
+    cols_selected  = [col for col in columnas if not pd.Series(col).str.contains(drop_cols, regex=True).any()]
 
-    query = f"""
-        SELECT * FROM read_parquet('{path}', hive_partitioning = true)
-    """
-    data = con.execute(query).fetchdf()
-
-    con.close()
+    data = dataset.to_table(columns=cols_selected).to_pandas()
 
     # data = pd.read_parquet(dataset_path + dataset_file)
-
-    data = data.loc[:, ~data.columns.str.contains(drop_cols)]
 
     data['clase_peso'] = 1.0
 
@@ -67,55 +61,8 @@ def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols="la
     y_test_class = test_data['clase_ternaria']
     w_test = test_data['clase_peso']
 
+    print('Data preparada')
+
     return X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test
 
-
-
-def predecir():
-
-    top_5 = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:5]['number'].tolist()
-
-    for i in top_5:
-
-        trial_params = study.trials[i].params
-        
-        best_iter = study.trials[i].user_attrs['best_iter']
-        
-        for semilla in semillas:
-
-            var_params = {'seed': semilla}
-
-            params = {**fixed_params, **trial_params, **var_params}
-
-            train_data = lgb.Dataset(X_train,
-                                    label=y_train_binaria2,
-                                    weight=w_train)
-
-            model = lgb.train(params,
-                            train_data,
-                            num_boost_round=best_iter)
-
-            model.save_model(modelos_path + 'lgbm-{study}-{trial}-{envios}-{semilla}.txt'.format(study = study_name, trial = i, envios = envios, semilla = semilla))
-
-            y_pred_lgm = model.predict(X_test)
-
-            rango = np.arange(min_envios, max_envios, paso_envios)
-
-            for i in rango:
-                data_export = X_test['numero_de_cliente'].to_frame()
-                data_export['Prob'] = y_pred_lgm
-                data_export = data_export.sort_values(by='Prob', ascending=False)
-                data_export['Predicted'] = 0
-                data_export.iloc[:i, data_export.columns.get_loc('Predicted')] = 1
-                envios = data_export['Predicted'].sum()
-                data_export = data_export[['numero_de_cliente', 'Predicted']]
-                envio_path = dataset_path + 'lgbm-{study}-{trial}-{envios}-{semilla}.csv'.format(study = study_name, trial = i, envios = envios, semilla = semilla)
-                data_export.to_csv(envio_path, index=False)
-                # Define the command
-                mensaje = 'Optuna study {study} trial {trial} semilla {semilla} - envios {envios}'.format(semilla = semilla, envios = envios, study = study_name, trial = study.best_trial.number)
-
-                command = 'kaggle competitions submit -c dm-ey-f-2024-primera -f {envio_path} -m "{mensaje}"'.format(envio_path = envio_path, mensaje = mensaje)
-                print(mensaje)
-                # Execute the command
-                os.system(command)
 
