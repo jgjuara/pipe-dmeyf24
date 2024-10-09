@@ -27,15 +27,19 @@ study = optuna.create_study(
 )
 
 
-def predecir():
+def predecir(n_top=5):
 
-    top_5 = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:5]['number'].tolist()
+    top_trials = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:n_top]['number'].tolist()
 
-    print('Top 5 trials: ', top_5)
+    print('Top 5 trials: ', top_trials)
 
-    for i in top_5:
+    for i in top_trials:
+
+        print(f'Trial: {i}')
 
         trial_params = study.trials[i].params
+
+        print('Params: ', trial_params)
         
         best_iter = study.trials[i].user_attrs['best_iter']
         
@@ -48,12 +52,19 @@ def predecir():
             train_data = lgb.Dataset(X_train,
                                     label=y_train_binaria2,
                                     weight=w_train)
+            
+            print(f'Entrenando modelo con semilla: {semilla}')
 
             model = lgb.train(params,
                             train_data,
                             num_boost_round=best_iter)
 
-            model.save_model(lgbm_globales.modelos_path + 'lgbm-{study}-{trial}-{semilla}.txt'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
+            print('Entrenamiento finalizado')
+            
+            path_modelo_file = 'lgbm-{study}-{trial}-{semilla}.txt'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            model.save_model(lgbm_globales.modelos_path + path_modelo_file)
+
+            print(f'Modelo guardado en {path_modelo_file}')
 
             y_pred_lgm = model.predict(X_test)
 
@@ -71,7 +82,7 @@ def predecir():
                 envio_path = 'envios/' + 'lgbm-{study}-{trial}-{envios}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, envios = envios, semilla = semilla)
                 data_export.to_csv(envio_path, index=False)
                 # Define the command
-                mensaje = 'Optuna study {study} trial {trial} semilla {semilla} - envios {envios}'.format(semilla = semilla, envios = envios, study = lgbm_globales.study_name, trial = study.best_trial.number)
+                mensaje = 'Lag t-1, ranks, variaciones train feb a abr - study {study} trial {trial} semilla {semilla} - envios {envios}'.format(semilla = semilla, envios = envios, study = lgbm_globales.study_name, trial = study.best_trial.number)
 
                 command = 'kaggle competitions submit -c dm-ey-f-2024-primera -f {envio_path} -m "{mensaje}"'.format(envio_path = envio_path, mensaje = mensaje)
                 print(mensaje)
