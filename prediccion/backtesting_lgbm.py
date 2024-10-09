@@ -39,8 +39,6 @@ def backtesting_lgbm():
 
     print("Testing top 5 trials:", top_5)
 
-    ganancia = np.where(y_test_binaria1 == 1, lgbm_globales.ganancia_acierto, 0) - np.where(y_test_binaria1 == 0, lgbm_globales.costo_estimulo, 0)
-
     for i in top_5:
 
         trial_params = study.trials[i].params
@@ -51,17 +49,30 @@ def backtesting_lgbm():
         
         for semilla in lgbm_globales.semillas:
 
+            df_path = 'testing/' + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+
+            if os.path.exists(df_path):
+                print("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
+                continue
+
+            ganancia = np.where(y_test_binaria1 == 1, lgbm_globales.ganancia_acierto, 0) - np.where(y_test_binaria1 == 0, lgbm_globales.costo_estimulo, 0)
+
             var_params = {'seed': semilla}
 
             params = {**lgbm_globales.fixed_params, **trial_params, **var_params}
 
+            print(f"Entrenando con semilla {semilla}")
+
             train_data = lgb.Dataset(X_train,
                                     label=y_train_binaria2,
                                     weight=w_train)
+            
 
             model = lgb.train(params,
                             train_data,
                             num_boost_round=best_iter)
+
+            print("Train terminado")
 
             y_pred_lgm = model.predict(X_test)
 
@@ -84,7 +95,7 @@ def backtesting_lgbm():
             df_cut_point['public_cum'] = df_cut_point['public'].cumsum()
             df_cut_point['private_cum'] = df_cut_point['private'].cumsum()
 
-            df_cut_point.to_csv('testing/' + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla), index=False)
+            df_cut_point.to_csv(df_path, index=False)
 
             print("Archivo testing guardado: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
 
