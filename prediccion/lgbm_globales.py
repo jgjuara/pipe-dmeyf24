@@ -1,3 +1,5 @@
+
+#%%
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -52,10 +54,12 @@ fixed_params = {
     'verbose': -1
 }
 
+#%%
 # variables ambiente fijas
 load_dotenv()
 semillas = os.getenv("semillas")
 semillas = [int(x) for x in semillas.split(",")]
+semillas = semillas + [x + 1 for x in semillas]
 ganancia_acierto = 273000
 costo_estimulo = 7000
 base_path = ''
@@ -63,3 +67,5 @@ dataset_path = base_path +  'datasets/competencia_01_aum/' #
 modelos_path = base_path + 'modelos/'
 db_path = base_path + 'db/'
 storage_name = "mysql+mysqldb://{u}:{p}@{ip}:3306/optuna_rf_db".format(p=urllib.parse.quote_plus(os.getenv("password")), u = os.getenv("usersrv"), ip = os.getenv("ip"))
+
+# %%
