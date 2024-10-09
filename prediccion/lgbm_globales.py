@@ -25,9 +25,9 @@ study_name = "lgbm_binaria_t3"
 boost_rounds = 10000
 intentos = 500
 optimizar = True
-min_envios = 10000
-max_envios = 13000
-paso_envios = 500
+min_envios = 8000
+max_envios = 12000
+paso_envios = 350
 
 #
 
@@ -59,7 +59,7 @@ fixed_params = {
 load_dotenv()
 semillas = os.getenv("semillas")
 semillas = [int(x) for x in semillas.split(",")]
-semillas = semillas + [x + 1 for x in semillas]
+# semillas = semillas + [x + 1 for x in semillas]
 ganancia_acierto = 273000
 costo_estimulo = 7000
 base_path = ''
