@@ -61,7 +61,7 @@ def predecir(n_top=5):
 
             print('Entrenamiento finalizado')
             
-            path_modelo_file = 'lgbm-{study}-{trial}-{semilla}.txt'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            path_modelo_file = 'lgbm-{study}-{trial}-{semilla}-train-04.txt'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
             model.save_model(lgbm_globales.modelos_path + path_modelo_file)
 
             print(f'Modelo guardado en {path_modelo_file}')
