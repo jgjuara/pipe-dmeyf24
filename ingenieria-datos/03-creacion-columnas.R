@@ -32,17 +32,17 @@ querys_prep <- pmap(reglas,
                     q2 <- NULL
                     q3 <- NULL
                         
-                    # if (isTRUE(percentil)) {
-                    # 
-                    #   q1 <- glue::glue("ntile(100) over (partition by foto_mes order by {var}) AS percentil_{var}")
-                    #                         
-                    # }
-                    
-                    if (isTRUE(decil)) {
-                      
-                      q2 <- glue::glue("ntile(10) over (partition by foto_mes order by {var}) AS decil_{var}")
-                      
+                    if (isTRUE(percentil)) {
+
+                      q1 <- glue::glue("ntile(100) over (partition by foto_mes order by {var}) AS {var}")
+
                     }
+                    
+                    # if (isTRUE(decil)) {
+                    #   
+                    #   q2 <- glue::glue("ntile(10) over (partition by foto_mes order by {var}) AS decil_{var}")
+                    #   
+                    # }
                     
                     # if (isTRUE(cuartil)) {
                     #   
@@ -52,7 +52,7 @@ querys_prep <- pmap(reglas,
                     
                     # paste(c(q1,q2,q3), collapse = ", ")
                       
-                    q2
+                    q1
                       
         })
 
