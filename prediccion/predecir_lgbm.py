@@ -75,12 +75,12 @@ def predecir(n_top=5):
 
             rango = np.arange(lgbm_globales.min_envios, lgbm_globales.max_envios, lgbm_globales.paso_envios)
 
-            for i in rango:
+            for j in rango:
                 data_export = X_test['numero_de_cliente'].to_frame()
                 data_export['Prob'] = y_pred_lgm
                 data_export = data_export.sort_values(by='Prob', ascending=False)
                 data_export['Predicted'] = 0
-                data_export.iloc[:i, data_export.columns.get_loc('Predicted')] = 1
+                data_export.iloc[:j, data_export.columns.get_loc('Predicted')] = 1
                 envios = data_export['Predicted'].sum()
                 data_export = data_export[['numero_de_cliente', 'Predicted']]
                 data_export['numero_de_cliente'] = data_export['numero_de_cliente'].astype(int)
