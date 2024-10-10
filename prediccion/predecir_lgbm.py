@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 import urllib
 import lgbm_globales
 import funciones_lgbm
+import pickle
 
 X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, lgbm_globales.dataset_file, mes_train = [202104], mes_test = 202106)
 
@@ -60,10 +61,14 @@ def predecir(n_top=5):
                             num_boost_round=best_iter)
 
             print('Entrenamiento finalizado')
-            
-            path_modelo_file = 'lgbm-{study}-{trial}-{semilla}-train-04.txt'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
-            model.save_model(lgbm_globales.modelos_path + path_modelo_file)
 
+            # Path to save the pickle file
+            path_modelo_file = 'lgbm-{study}-{trial}-{semilla}-train-04.txt'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+
+            # Save the model using pickle
+            with open(lgbm_globales.modelos_path+path_modelo_file, 'wb') as f:
+                pickle.dump(model, f)
+            
             print(f'Modelo guardado en {path_modelo_file}')
 
             y_pred_lgm = model.predict(X_test)
