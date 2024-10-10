@@ -16,7 +16,7 @@ import urllib
 import lgbm_globales
 import funciones_lgbm
 
-X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, lgbm_globales.dataset_file, mes_train = [202102, 202103, 202104], mes_test = 202106)
+X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, lgbm_globales.dataset_file, mes_train = [202104], mes_test = 202106)
 
 
 study = optuna.create_study(
@@ -82,7 +82,7 @@ def predecir(n_top=5):
                 envio_path = 'envios/' + 'lgbm-{study}-{trial}-{envios}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, envios = envios, semilla = semilla)
                 data_export.to_csv(envio_path, index=False)
                 # Define the command
-                mensaje = 'Lag t-1, ranks, variaciones train feb a abr - study {study} trial {trial} semilla {semilla} - envios {envios}'.format(semilla = semilla, envios = envios, study = lgbm_globales.study_name, trial = study.best_trial.number)
+                mensaje = 'Lag t-1, ranks, variaciones train abr - study {study} trial {trial} semilla {semilla} - envios {envios}'.format(semilla = semilla, envios = envios, study = lgbm_globales.study_name, trial = study.best_trial.number)
 
                 command = 'kaggle competitions submit -c dm-ey-f-2024-primera -f {envio_path} -m "{mensaje}"'.format(envio_path = envio_path, mensaje = mensaje)
                 print(mensaje)
