@@ -21,7 +21,7 @@ import urllib
 dataset_file = 'competencia_01_aum.parquet'
 mes_train = [202102, 202103]
 mes_test = 202104
-study_name = "lgbm_binaria_t3"
+study_name = "lgbm_binaria_t4"
 boost_rounds = 10000
 intentos = 500
 optimizar = True
