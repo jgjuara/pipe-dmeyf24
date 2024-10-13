@@ -16,5 +16,5 @@ part = ds.partitioning(
 ds.write_dataset(tabla, base_dir = "datasets/competencia_01_aum",
                  format="parquet",
                  partitioning= part,
-                 max_rows_per_file = 42000, max_rows_per_group = 42000,
+                 max_rows_per_file = 21000, max_rows_per_group = 21000,
                  existing_data_behavior = "overwrite_or_ignore")
