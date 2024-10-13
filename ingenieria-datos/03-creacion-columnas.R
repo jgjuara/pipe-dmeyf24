@@ -18,55 +18,139 @@ reglas <- read_csv("aux-files/rankscsv.txt")
 # jugar con funciones de min,max ej max()
 
 
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select * 
+                from competencia_01"))
+
+
+# limite credito compra total ----------------------------------------------------
+
+query <- "Master_mlimitecompra + Visa_mlimitecompra as total_mlimitecompra"
+
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select *, 
+                {query}
+                from competencia_01_columnas_adicionales"))
+
+# limite financiacion total -----------------------------------------------
+
+# Visa_mfinanciacion_limite + Master_mfinanciacion_limite
+
+query <- "Visa_mfinanciacion_limite + Master_mfinanciacion_limite as total_mfinanciacion_limite"
+
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select *, 
+                {query},
+                from competencia_01_columnas_adicionales"))
+
+
+# saldo total credito -----------------------------------------------------
+
+# Master_msaldototal + Visa_msaldototal
+
+query <- "Master_msaldototal + Visa_msaldototal as total_msaldototal"
+
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select *, 
+                {query},
+                from competencia_01_columnas_adicionales"))
+
+
+#  patrimonio en cuenta ---------------------------------------------------
+
+# mcuentas_saldo + minversion1_pesos + minversion2 + mplazo_fijo_dolares +mplazo_fijo_pesos
+
+
+query <- "mcuentas_saldo + minversion1_pesos + minversion2 + mplazo_fijo_dolares + mplazo_fijo_pesos as total_patrimonio"
+
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select *, 
+                {query},
+                from competencia_01_columnas_adicionales"))
+
+# suma haberes ---------------------------------------------------
+
+# cpayroll2_trx + cpayroll_trx 
+
+query <- "cpayroll2_trx + cpayroll_trx as total_payroll"
+
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select *, 
+                {query}
+                from competencia_01_columnas_adicionales"))
+
+# prestamos  ---------------------------------------------------
+
+# mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios
+
+query <- "mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios as total_prestamos"
+
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select *, 
+                {query}
+                from competencia_01_columnas_adicionales"))
+
 # creacion de ranks -------------------------------------------------------
+
+
+columnas <- dbGetQuery(con, "SELECT column_name
+FROM information_schema.columns
+WHERE table_name = 'competencia_01_columnas_adicionales';")
+
+
+columnas <- columnas[["column_name"]]
+
+
 
 reglas <- reglas %>% select(var, percentil, decil, cuartil)
 
 reglas  <- reglas %>% filter(!if_all(c(percentil, cuartil, decil),
-                                             is.na))
+                                     is.na))
+
+columnas <- columnas[! columnas %in% reglas$var]
+
 
 querys_prep <- pmap(reglas, 
                     function(var, percentil, decil, cuartil) {
-                    
-                    q1 <- NULL
-                    q2 <- NULL
-                    q3 <- NULL
+                      
+                      q1 <- NULL
+                      q2 <- NULL
+                      q3 <- NULL
+                      
+                      if (isTRUE(percentil)) {
                         
-                    if (isTRUE(percentil)) {
-
-                      q1 <- glue::glue("ntile(100) over (partition by foto_mes order by {var}) AS {var}")
-
-                    }
-                    
-                    # if (isTRUE(decil)) {
-                    #   
-                    #   q2 <- glue::glue("ntile(10) over (partition by foto_mes order by {var}) AS decil_{var}")
-                    #   
-                    # }
-                    
-                    # if (isTRUE(cuartil)) {
-                    #   
-                    #   q3 <- glue::glue("ntile(4) over (partition by foto_mes order by {var}) AS cuartil_{var}")
-                    #   
-                    # }
-                    
-                    # paste(c(q1,q2,q3), collapse = ", ")
+                        q1 <- glue::glue("ntile(100) over (partition by foto_mes order by {var}) AS {var}")
+                        
+                      }
                       
-                    q1
+                      # if (isTRUE(decil)) {
+                      #   
+                      #   q2 <- glue::glue("ntile(10) over (partition by foto_mes order by {var}) AS decil_{var}")
+                      #   
+                      # }
                       
-        })
+                      # if (isTRUE(cuartil)) {
+                      #   
+                      #   q3 <- glue::glue("ntile(4) over (partition by foto_mes order by {var}) AS cuartil_{var}")
+                      #   
+                      # }
+                      
+                      # paste(c(q1,q2,q3), collapse = ", ")
+                      
+                      q1
+                      
+                    })
 
 
 querys_prep <- querys_prep %>% unlist()
 
 querys_prep <- paste(querys_prep, collapse = ", ")
 
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select * 
-                from competencia_01"))
+columnas <- columnas %>% 
+  paste(collapse = ", ")
 
 dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
+                select {columnas}, 
                 {querys_prep}
                 from competencia_01_columnas_adicionales"))
 
@@ -77,6 +161,21 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 # dbExecute(con, exportparquet_query)
 # dbExecute(con, exportcsv_query)
 
+
+# ranks vars ad hoc -----
+
+vars_adhoc <- c("total_mlimitecompra", "total_mfinanciacion_limite",
+                "total_msaldototal", "total_patrimonio",  "total_payroll", "total_prestamos")
+
+query <- sapply(vars_adhoc, function(var) {glue::glue("ntile(100) over (partition by foto_mes order by {var}) AS {var}")})
+
+query <- paste(query, collapse = ", ")
+
+
+dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+                select *, 
+                {query}
+                from competencia_01_columnas_adicionales"))
 
 # creacion de lags --------------------------------------------------------
 
@@ -109,96 +208,17 @@ dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adici
 # dbExecute(con, exportcsv_query)
 
 
-
-# limite credito compra total ----------------------------------------------------
-
-query <- "Master_mlimitecompra + Visa_mlimitecompra as total_mlimitecompra,
-          lag1_Master_mlimitecompra + lag1_Visa_mlimitecompra as lag1_total_mlimitecompra,
-          lag2_Master_mlimitecompra + lag2_Visa_mlimitecompra as lag2_total_mlimitecompra"
-
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
-                {query}
-                from competencia_01_columnas_adicionales"))
-
-# limite financiacion total -----------------------------------------------
-
-# Visa_mfinanciacion_limite + Master_mfinanciacion_limite
-
-query <- "Visa_mfinanciacion_limite + Master_mfinanciacion_limite as total_mfinanciacion_limite,
-          lag1_Visa_mfinanciacion_limite + lag1_Master_mfinanciacion_limite as lag1_total_mfinanciacion_limite,
-          lag2_Visa_mfinanciacion_limite + lag2_Master_mfinanciacion_limite as lag2_total_mfinanciacion_limite"
-
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
-                {query},
-                from competencia_01_columnas_adicionales"))
-
-
-# saldo total credito -----------------------------------------------------
-
-# Master_msaldototal + Visa_msaldototal
-
-query <- "Master_msaldototal + Visa_msaldototal as total_msaldototal,
-          lag1_Master_msaldototal + lag1_Visa_msaldototal as lag1_total_msaldototal,
-          lag2_Master_msaldototal + lag2_Visa_msaldototal as lag2_total_msaldototal"
-
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
-                {query},
-                from competencia_01_columnas_adicionales"))
-
-
-#  patrimonio en cuenta ---------------------------------------------------
-
-# mcuentas_saldo + minversion1_pesos + minversion2 + mplazo_fijo_dolares +mplazo_fijo_pesos
-
-
-query <- "mcuentas_saldo + minversion1_pesos + minversion2 + mplazo_fijo_dolares + mplazo_fijo_pesos as total_patrimonio,
-          lag1_mcuentas_saldo + lag1_minversion1_pesos + lag1_minversion2 + lag1_mplazo_fijo_dolares + lag1_mplazo_fijo_pesos as lag1_total_patrimonio,
-          lag2_mcuentas_saldo + lag2_minversion1_pesos + lag2_minversion2 + lag2_mplazo_fijo_dolares + lag2_mplazo_fijo_pesos as lag2_total_patrimonio"
-
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
-                {query},
-                from competencia_01_columnas_adicionales"))
-
-# suma haberes ---------------------------------------------------
-
-# cpayroll2_trx + cpayroll_trx 
-
-query <- "cpayroll2_trx + cpayroll_trx as total_payroll,
-          lag1_cpayroll2_trx + lag1_cpayroll_trx as lag1_total_payroll,
-          lag2_cpayroll2_trx + lag2_cpayroll_trx as lag2_total_payroll"
-
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
-                {query}
-                from competencia_01_columnas_adicionales"))
-
-# prestamos  ---------------------------------------------------
-
-# mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios
-
-query <- "mprestamos_personales + mprestamos_prendarios + mprestamos_hipotecarios as total_prestamos,
-          lag1_mprestamos_personales + lag1_mprestamos_prendarios + lag1_mprestamos_hipotecarios as lag1_total_prestamos,
-          lag2_mprestamos_personales + lag2_mprestamos_prendarios + lag2_mprestamos_hipotecarios as lag2_total_prestamos"
-
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
-                {query}
-                from competencia_01_columnas_adicionales"))
-
 # vars falopa -------------------------------------------------------------
 
 # var si cumplio anios como var entre edad y lag(edad)
+# 
+# query <- "cliente_edad - lag1_cliente_edad as cumpleanios"
+# 
+# dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
+#                 select *, 
+#                 {query}
+#                 from competencia_01_columnas_adicionales"))
 
-query <- "cliente_edad - lag1_cliente_edad as cumpleanios"
-
-dbExecute(con, glue::glue("create or replace table competencia_01_columnas_adicionales as  
-                select *, 
-                {query}
-                from competencia_01_columnas_adicionales"))
 
 # var cliente_antiguedad binned (responde a quienes entraron juntos)
 
