@@ -19,9 +19,9 @@ import urllib
 
 # parametros a setear
 dataset_file = 'competencia_01_aum.parquet'
-mes_train = [202102, 202103]
+mes_train = [202103]
 mes_test = 202104
-study_name = "lgbm_binaria_t4"
+study_name = "lgbm_binaria_t5"
 boost_rounds = 10000
 intentos = 500
 optimizar = True
@@ -49,7 +49,7 @@ fixed_params = {
     'first_metric_only': True,
     'boost_from_average': True,
     'feature_pre_filter': False,
-    'max_bin': 31,
+    'max_bin': 1000,
     'force_col_wise' : True,
     'verbose': -1
 }
