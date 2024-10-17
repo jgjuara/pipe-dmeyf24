@@ -24,7 +24,7 @@ import duckdb
 #%%
 
 
-def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols="lag2|variacion2"):
+def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols=None):
 
     print('Preparando data...')
 
@@ -32,7 +32,16 @@ def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols="la
 
     columnas = dataset.schema.names
 
-    cols_selected  = [col for col in columnas if not pd.Series(col).str.contains(drop_cols, regex=True).any()]
+    if drop_cols is not None:
+
+        cols_selected  = [col for col in columnas if not pd.Series(col).str.contains(drop_cols, regex=True).any()]
+
+    else:
+
+        cols_selected  = [col for col in columnas if not pd.Series(col).str.contains("lag2_clase|variacion2_clase|lag1_clase|variacion1_clase", regex=True).any()]    
+        # cols_selected = columnas
+
+
 
     data = dataset.to_table(columns=cols_selected).to_pandas()
 
