@@ -16,6 +16,8 @@ import urllib
 import lgbm_globales
 import funciones_lgbm
 import pickle
+import time
+
 
 X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, lgbm_globales.dataset_file, mes_train = [202104], mes_test = 202106)
 
@@ -28,7 +30,7 @@ study = optuna.create_study(
 )
 
 
-def predecir(n_top=5):
+def predecir(n_top=3):
 
     top_trials = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:n_top]['number'].tolist()
 
@@ -93,6 +95,9 @@ def predecir(n_top=5):
                 print(mensaje)
                 # Execute the command
                 os.system(command)
+
+                time.sleep(60)
+
 
 
 

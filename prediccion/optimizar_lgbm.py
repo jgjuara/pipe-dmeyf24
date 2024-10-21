@@ -16,10 +16,11 @@ import urllib
 import lgbm_globales
 import funciones_lgbm
 
-X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path,
-                                                                                                                   lgbm_globales.dataset_file,
-                                                                                                                    lgbm_globales.mes_train,
-                                                                                                                    lgbm_globales.mes_test)
+X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(
+                                                                                                                    dbname=lgbm_globales.dataset_path,
+                                                                                                                    mes_train= lgbm_globales.mes_train,
+                                                                                                                    mes_test= lgbm_globales.mes_test,
+                                                                                                                    sampling= lgbm_globales.sampling)
 
 
 def lgb_gan_eval(y_pred, data):
@@ -35,16 +36,15 @@ def lgb_gan_eval(y_pred, data):
 def objective(trial):
 
     params_objetivo = {
-    'num_leaves' : trial.suggest_int('num_leaves', 20, 5000),
+    'num_leaves' : trial.suggest_int('num_leaves', 20, 10000),
     'learning_rate' : trial.suggest_float('learning_rate', 0.005, 0.4), # mas bajo, más iteraciones necesita
-    'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 1, 1000),
-    'feature_fraction' : trial.suggest_float('feature_fraction', 0.1, .8),
-    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.1, .8), 
-    'bagging_fraction' : trial.suggest_float('bagging_fraction', 0.05, .8),
-    'drop_rate': trial.suggest_float('drop_rate', 0.05, 0.3)
+    'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 1, 4000),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.005, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.05, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3)
     }
 
-    semilla = np.random.choice(lgbm_globales.semillas)
+    semilla = lgbm_globales.semillas[0]
 
     params_objetivo['seed'] = semilla
 

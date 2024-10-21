@@ -11,3 +11,4 @@ pipe-dmeyf24.Rproj
 datasets/*.parquet
 datasets/*.csv
 datasets/*.csv
+datasets/competencia_02_crudo.csv.gz

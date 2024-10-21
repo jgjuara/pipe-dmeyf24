@@ -17,6 +17,7 @@ import urllib
 import pyarrow.dataset as ds
 import lgbm_globales
 import duckdb
+from pathlib import Path
 
 
 
@@ -24,26 +25,35 @@ import duckdb
 #%%
 
 
-def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols=None):
+def preparar_data(dbname, mes_train, mes_test, drop_cols=None, sampling = 1):
 
     print('Preparando data...')
 
-    dataset = ds.dataset(dataset_path, format="parquet", partitioning="hive")
+    root_path = Path(__file__).parent.parent.resolve()
 
-    columnas = dataset.schema.names
+    root_path = root_path.as_posix() + '/'
 
-    if drop_cols is not None:
+    # Connect to DuckDB database
+    con = duckdb.connect(root_path+'duckdb/'+ dbname + ".duckdb")       
 
-        cols_selected  = [col for col in columnas if not pd.Series(col).str.contains(drop_cols, regex=True).any()]
+    meses = mes_train + mes_test
+    
+    meses = ', '.join(map(str, meses))
 
-    else:
+    
+    query = (f"""
+            SELECT *
+            FROM {dbname}
+            JOIN {dbname}_lags
+            ON {dbname}.foto_mes = {dbname}_lags.foto_mes
+            AND {dbname}.numero_de_cliente = {dbname}_lags.numero_de_cliente
+            AND {dbname}.clase_ternaria = {dbname}_lags.clase_ternaria
+            WHERE {dbname}.foto_mes IN ({meses});""")
 
-        cols_selected  = [col for col in columnas if not pd.Series(col).str.contains("lag2_clase|variacion2_clase|lag1_clase|variacion1_clase", regex=True).any()]    
-        # cols_selected = columnas
+    # Execute the join query and fetch the result as a Pandas DataFrame
+    data = con.execute(query).fetchdf()
 
-
-
-    data = dataset.to_table(columns=cols_selected).to_pandas()
+    data = data.drop(['numero_de_cliente_1', 'foto_mes_1', 'clase_ternaria_1'], axis=1)
 
     # data = pd.read_parquet(dataset_path + dataset_file)
 
@@ -57,8 +67,20 @@ def preparar_data(dataset_path, dataset_file, mes_train, mes_test, drop_cols=Non
     data['clase_binaria1'] = np.where(data['clase_ternaria'] == 'BAJA+2', 1, 0)
     data['clase_binaria2'] = np.where(data['clase_ternaria'] == 'CONTINUA', 0, 1)
 
+#   data = data.loc[data['foto_mes'].isin(mes_train + mes_test)]
+
+    data_continua = data[data['clase_ternaria'] == 'CONTINUA']
+
+    data_continua = data_continua.groupby('foto_mes').sample(frac=sampling, random_state=42)
+
+    data = pd.concat([data_continua, data[data['clase_ternaria'] != 'CONTINUA']])
+
+    print(data.head())
+
+    del data_continua
+
     train_data = data.loc[data['foto_mes'].isin(mes_train)]
-    test_data = data[data['foto_mes'] == mes_test]
+    test_data = data[data['foto_mes'].isin(mes_test)]
 
     X_train = train_data.drop(['clase_ternaria', 'clase_peso', 'clase_binaria1','clase_binaria2'], axis=1)
     y_train_binaria1 = train_data['clase_binaria1']

@@ -16,18 +16,20 @@ import os
 from dotenv import load_dotenv
 import urllib
 # Load environment variables from .env file
+from pathlib import Path
 
 # parametros a setear
-dataset_file = 'competencia_01_aum.parquet'
-mes_train = [202103]
-mes_test = 202104
-study_name = "lgbm_binaria_t5"
+dataset_path = 'compe_02'
+mes_train = [202012,202101,202102,202103, 202104, 202105]
+mes_test = [202106]
+sampling = 0.1
+study_name = "experimento_sampling_10perc"
 boost_rounds = 10000
-intentos = 500
+intentos = 100
 optimizar = True
 min_envios = 8000
-max_envios = 12000
-paso_envios = 350
+max_envios = 14000
+paso_envios = 250
 
 #
 
@@ -49,9 +51,9 @@ fixed_params = {
     'first_metric_only': True,
     'boost_from_average': True,
     'feature_pre_filter': False,
-    'max_bin': 1000,
     'force_col_wise' : True,
-    'verbose': -1
+    'verbose': -1,
+    'max_bin' : 100
 }
 
 #%%
@@ -63,7 +65,6 @@ semillas = [int(x) for x in semillas.split(",")]
 ganancia_acierto = 273000
 costo_estimulo = 7000
 base_path = ''
-dataset_path = base_path +  'datasets/competencia_01_aum/' #
 modelos_path = base_path + 'modelos/'
 db_path = base_path + 'db/'
 storage_name = "mysql+mysqldb://{u}:{p}@{ip}:3306/optuna_rf_db".format(p=urllib.parse.quote_plus(os.getenv("password")), u = os.getenv("usersrv"), ip = os.getenv("ip"))
