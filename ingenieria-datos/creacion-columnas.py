@@ -401,7 +401,7 @@ def procesamiento_base(dbname, file):
 
     #%% decilado lags
 
-    columnas = con.execute("""SELECT column_name
+    columnas = con.execute(f"""SELECT column_name
     FROM information_schema.columns
     WHERE table_name = '{dbname}';""").fetchdf()
 
