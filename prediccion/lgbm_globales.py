@@ -22,8 +22,8 @@ from pathlib import Path
 dataset_path = 'compe_02'
 mes_train = [202012,202101,202102,202103, 202104, 202105]
 mes_test = [202106]
-sampling = 0.1
-study_name = "experimento_sampling_10perc"
+sampling = 1
+study_name = "experimento_sampling_100perc"
 boost_rounds = 10000
 intentos = 100
 optimizar = True
