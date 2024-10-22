@@ -53,6 +53,8 @@ def preparar_data(dbname, mes_train, mes_test, drop_cols=None, sampling = 1):
     # Execute the join query and fetch the result as a Pandas DataFrame
     data = con.execute(query).fetchdf()
 
+    print(data.shape)
+
     data = data.drop(['numero_de_cliente_1', 'foto_mes_1', 'clase_ternaria_1'], axis=1)
 
     # data = pd.read_parquet(dataset_path + dataset_file)
