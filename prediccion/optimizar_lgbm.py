@@ -44,7 +44,7 @@ def objective(trial):
     'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3)
     }
 
-    semilla = lgbm_globales.semillas[0]
+    semilla = np.random.choice(lgbm_globales.semillas)
 
     params_objetivo['seed'] = semilla
 
