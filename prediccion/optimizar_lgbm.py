@@ -70,6 +70,7 @@ def objective(trial):
 
     # Guardamos cual es la mejor iteración del modelo
     trial.set_user_attr("best_iter", best_iter)
+    trial.set_user_attr("train_months", lgbm_globales.mes_train)
 
     return max_gan * 5 / len(lgbm_globales.mes_train)
 
