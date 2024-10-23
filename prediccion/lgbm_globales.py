@@ -61,7 +61,7 @@ fixed_params = {
 load_dotenv()
 semillas = os.getenv("semillas")
 semillas = [int(x) for x in semillas.split(",")]
-# semillas = semillas + [x + 1 for x in semillas]
+semillas = semillas + [x + 1 for x in semillas]
 ganancia_acierto = 273000
 costo_estimulo = 7000
 base_path = ''
