@@ -52,9 +52,8 @@ def objective(trial):
 
     learning_rate = params['learning_rate']
 
-    train_data = lgb.Dataset(X_train,
-                              label=y_train_binaria2, # eligir la clase
-                              weight=w_train)
+    train_data = lgb.Dataset(data = "train_data.bin")
+
     cv_results = lgb.cv(
         params,
         train_data,
@@ -71,7 +70,6 @@ def objective(trial):
     # Guardamos cual es la mejor iteración del modelo
     trial.set_user_attr("best_iter", best_iter)
     trial.set_user_attr("train_months", lgbm_globales.mes_train)
-    trial.set_user_attr("max_bin", int(lgbm_globales.fixed_params.get("max_bin")))
     trial.set_user_attr("seed", int(semilla))
 
 
@@ -85,6 +83,15 @@ study = optuna.create_study(
     load_if_exists=True
 )
 
+nrows = X_train.shape[0]
+
+ds_params = {'bin_construct_sample_cnt': nrows * 0.6}
+
+train_data = lgb.Dataset(X_train,
+                            label=y_train_binaria2, # eligir la clase
+                            weight=w_train)
+
+train_data.save_binary("train_data.bin")
 
 if lgbm_globales.optimizar:
     study.optimize(objective, n_trials= lgbm_globales.intentos) # subir subir
