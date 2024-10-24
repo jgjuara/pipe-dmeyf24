@@ -65,7 +65,7 @@ def predecir(n_top=3):
             print('Entrenamiento finalizado')
 
             # Path to save the pickle file
-            path_modelo_file = 'lgbm-{study}-{trial}-{semilla}-train-04.pkl'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            path_modelo_file = 'lgbm-{study}-{trial}-{semilla}-train.pkl'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
             # Save the model using pickle
             with open(lgbm_globales.modelos_path+path_modelo_file, 'wb') as f:
