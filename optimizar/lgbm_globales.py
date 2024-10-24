@@ -35,6 +35,9 @@ mes_test = variables.get('mes_test', [])
 n_envios = variables.get('n_envios', 0)
 sampling = variables.get('sampling', 0.0)
 study_name = variables.get('study_name', "")
+intentos = variables.get('intentos', 100)
+
+#%%
 
 # Print the values to verify
 print("mes_train:", mes_train)
