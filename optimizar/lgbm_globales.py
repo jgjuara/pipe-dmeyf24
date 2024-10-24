@@ -18,18 +18,38 @@ import urllib
 # Load environment variables from .env file
 from pathlib import Path
 
+# Define the file path
+file_path = os.path.join("optimizar","params_variables.py")
+
+# Initialize a dictionary to store the variables
+variables = {}
+
+# Read and parse the file
+with open(file_path, 'r') as file:
+    file_content = file.read()
+    exec(file_content, {}, variables)
+
+# Extract the variables
+mes_train = variables.get('mes_train', [])
+mes_test = variables.get('mes_test', [])
+n_envios = variables.get('n_envios', 0)
+sampling = variables.get('sampling', 0.0)
+study_name = variables.get('study_name', "")
+
+# Print the values to verify
+print("mes_train:", mes_train)
+print("mes_test:", mes_test)
+print("n_envios:", n_envios)
+print("sampling:", sampling)
+print("study_name:", study_name)
+
 # parametros a setear
 dataset_path = 'compe_02'
-mes_train = [202012, 202012,202101,202102,202103, 202104, 202105]
-mes_test = [202106]
-sampling = 0.1
-study_name = "experimento_sampling_10percV2"
 boost_rounds = 10000
-intentos = 100
 optimizar = True
 min_envios = 8000
 max_envios = 14000
-paso_envios = 250
+paso_envios = (max_envios - min_envios) / n_envios
 
 #
 

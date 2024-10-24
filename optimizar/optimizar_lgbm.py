@@ -18,6 +18,8 @@ import funciones_lgbm
 import gc
 
 
+
+
 X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(
                                                                                                                     dbname=lgbm_globales.dataset_path,
                                                                                                                     mes_train= lgbm_globales.mes_train,
@@ -51,6 +53,9 @@ def objective(trial):
     params_objetivo['seed'] = semilla
 
     params = {**lgbm_globales.fixed_params, **params_objetivo}
+
+    print("###########################################################")
+    print(f"Trial Params: {params}")
 
     learning_rate = params['learning_rate']
 
