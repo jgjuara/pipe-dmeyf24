@@ -12,3 +12,4 @@ datasets/*.parquet
 datasets/*.csv
 datasets/*.csv
 datasets/competencia_02_crudo.csv.gz
+train_data.bin

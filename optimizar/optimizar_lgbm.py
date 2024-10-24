@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 import urllib
 import lgbm_globales
 import funciones_lgbm
+import gc
+
 
 X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(
                                                                                                                     dbname=lgbm_globales.dataset_path,
@@ -91,7 +93,11 @@ train_data = lgb.Dataset(X_train,
                             label=y_train_binaria2, # eligir la clase
                             weight=w_train)
 
-train_data.save_binary("train_data.bin")
+train_data.save_binary(f"train_data_{lgbm_globales.study_name}.bin")
+
+del X_train, X_test
+
+gc.collect()
 
 if lgbm_globales.optimizar:
     study.optimize(objective, n_trials= lgbm_globales.intentos) # subir subir
