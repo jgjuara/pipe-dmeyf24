@@ -59,7 +59,7 @@ def objective(trial):
 
     learning_rate = params['learning_rate']
 
-    train_data = lgb.Dataset(data = "train_data.bin")
+    train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
 
     cv_results = lgb.cv(
         params,
