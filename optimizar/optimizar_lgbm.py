@@ -105,5 +105,5 @@ del X_train, X_test
 gc.collect()
 
 if lgbm_globales.optimizar:
-    study.optimize(objective, n_trials= lgbm_globales.intentos) # subir subir
+    study.optimize(objective, n_trials= lgbm_globales.intentos, gc_after_trial=True) # subir subir
 
