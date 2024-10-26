@@ -37,7 +37,13 @@ train_data = lgb.Dataset(X_train,
                         label=y_train_binaria2,
                         weight=w_train)
 
+if os.path.exists('train_data.bin'):
+    print("Archivo train_data.bin ya existe. Borrando...")
+    os.remove('train_data.bin')
+
 train_data.save_binary('train_data.bin')
+
+print("Archivo train_data.bin guardado")
 
 def backtesting_lgbm():
   
