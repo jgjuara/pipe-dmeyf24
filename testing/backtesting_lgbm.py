@@ -49,7 +49,7 @@ def backtesting_lgbm():
   
     top_n = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:lgbm_globales.top_n]['number'].tolist()
 
-    print("Testing top 5 trials:", lgbm_globales.top_n)
+    print("Testing top trials:", lgbm_globales.top_n)
 
     for i in top_n:
 
