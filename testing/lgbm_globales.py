@@ -78,7 +78,7 @@ semillas = semillas + [x + 1 for x in semillas]
 ganancia_acierto = 273000
 costo_estimulo = 7000
 base_path = ''
-modelos_path = '~/b1/exp/'
+modelos_path = '~/buckets/b1/exp/'
 db_path = base_path + 'db/'
 storage_name = "mysql+mysqldb://{u}:{p}@{ip}:3306/optuna_rf_db".format(p=urllib.parse.quote_plus(os.getenv("password")), u = os.getenv("usersrv"), ip = os.getenv("ip"))
 
