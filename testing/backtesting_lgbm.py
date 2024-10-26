@@ -81,10 +81,12 @@ def backtesting_lgbm():
                             train_data,
                             num_boost_round=best_iter)
             
-            model_path = "model-{study}-{trial}-{semilla}.txt".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            model_path = "model-{study}-{trial}-{semilla}.pkl".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
-            model.dump_model(lgbm_globales.modelos_path+'modelos/'+model_path, importance_type='gain')
-
+            # Save the model using pickle
+            with open(lgbm_globales.modelos_path+'modelos/'+model_path, 'wb') as f:
+                pickle.dump(model, f)
+            
             print("Modelo guardado: "+model_path)
 
             print("Train terminado")
