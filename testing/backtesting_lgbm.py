@@ -75,7 +75,7 @@ def backtesting_lgbm():
 
             print(f"Entrenando con semilla {semilla}")
 
-            train_data = lgb.Dataset("train_data.bin")
+            train_data = lgb.Dataset("testing/train_data.bin")
             
             model = lgb.train(params,
                             train_data,
