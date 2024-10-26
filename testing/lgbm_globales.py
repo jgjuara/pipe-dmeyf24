@@ -18,18 +18,33 @@ import urllib
 # Load environment variables from .env file
 from pathlib import Path
 
+# Define the file path
+file_path = os.path.join("optimizar","params_variables.py")
+
+# Initialize a dictionary to store the variables
+variables = {}
+
+# Read and parse the file
+with open(file_path, 'r') as file:
+    file_content = file.read()
+    exec(file_content, {}, variables)
+
+# Extract the variables
+mes_train = variables.get('mes_train', [])
+mes_test = variables.get('mes_test', [])
+n_envios = variables.get('n_envios', 0)
+sampling = variables.get('sampling', 0.0)
+study_name = variables.get('study_name', "")
+intentos = variables.get('intentos', 100)
+
 # parametros a setear
 dataset_path = 'compe_02'
-mes_train = [202012, 202012,202101,202102,202103, 202104, 202105]
-mes_test = [202106]
-sampling = 1
-study_name = "experimento_linea_base"
+top_n = 3
 boost_rounds = 10000
-intentos = 100
 optimizar = True
 min_envios = 8000
 max_envios = 14000
-paso_envios = 250
+paso_envios = (max_envios - min_envios) / n_envios
 
 #
 
@@ -63,7 +78,7 @@ semillas = semillas + [x + 1 for x in semillas]
 ganancia_acierto = 273000
 costo_estimulo = 7000
 base_path = ''
-modelos_path = base_path + 'modelos/'
+modelos_path = '~/b1/exp/'
 db_path = base_path + 'db/'
 storage_name = "mysql+mysqldb://{u}:{p}@{ip}:3306/optuna_rf_db".format(p=urllib.parse.quote_plus(os.getenv("password")), u = os.getenv("usersrv"), ip = os.getenv("ip"))
 

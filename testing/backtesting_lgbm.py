@@ -33,13 +33,19 @@ study = optuna.create_study(
 
 #%%
 
+train_data = lgb.Dataset(X_train,
+                        label=y_train_binaria2,
+                        weight=w_train)
+
+train_data.save_binary('train_data.bin')
+
 def backtesting_lgbm():
   
-    top_5 = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:5]['number'].tolist()
+    top_n = study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:lgbm_globales.top_n]['number'].tolist()
 
-    print("Testing top 5 trials:", top_5)
+    print("Testing top 5 trials:", lgbm_globales.top_n)
 
-    for i in top_5:
+    for i in top_n:
 
         trial_params = study.trials[i].params
 
@@ -49,7 +55,7 @@ def backtesting_lgbm():
         
         for semilla in lgbm_globales.semillas:
 
-            df_path = 'testing/' + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            df_path = lgbm_globales.modelos_path +'testing/' + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
             if os.path.exists(df_path):
                 print("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
@@ -63,14 +69,17 @@ def backtesting_lgbm():
 
             print(f"Entrenando con semilla {semilla}")
 
-            train_data = lgb.Dataset(X_train,
-                                    label=y_train_binaria2,
-                                    weight=w_train)
+            train_data = lgb.Dataset("train_data.bin")
             
-
             model = lgb.train(params,
                             train_data,
                             num_boost_round=best_iter)
+            
+            model_path = "model-{study}-{trial}-{semilla}.txt".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+
+            model.dump_model(lgbm_globales.modelos_path+'modelos/'+model_path, importance_type='gain')
+
+            print("Modelo guardado: "+model_path)
 
             print("Train terminado")
 
