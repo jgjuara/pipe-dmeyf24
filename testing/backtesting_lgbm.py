@@ -19,7 +19,7 @@ import funciones_lgbm
 
 #%%
 
-X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, lgbm_globales.dataset_file, lgbm_globales.mes_train, lgbm_globales.mes_test)
+X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, mes_train= lgbm_globales.mes_train, mes_test= lgbm_globales.mes_test)
 
 #%%
 
