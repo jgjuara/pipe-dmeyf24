@@ -41,7 +41,7 @@ if os.path.exists('train_data.bin'):
     print("Archivo train_data.bin ya existe. Borrando...")
     os.remove('train_data.bin')
 
-train_data.save_binary('train_data.bin')
+train_data.save_binary('testing/train_data.bin')
 
 print("Archivo train_data.bin guardado")
 
@@ -81,12 +81,11 @@ def backtesting_lgbm():
                             train_data,
                             num_boost_round=best_iter)
             
-            model_path = "model-{study}-{trial}-{semilla}.pkl".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            model_path = "model-{study}-{trial}-{semilla}.txt".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
-            # Save the model using pickle
-            with open(lgbm_globales.modelos_path+'modelos/'+model_path, 'wb') as f:
-                pickle.dump(model, f)
-            
+            # save model to file
+            model.save_model(lgbm_globales.modelos_path + 'testing/' + model_path)
+
             print("Modelo guardado: "+model_path)
 
             print("Train terminado")
