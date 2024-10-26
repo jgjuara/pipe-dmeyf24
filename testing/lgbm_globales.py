@@ -19,7 +19,7 @@ import urllib
 from pathlib import Path
 
 # Define the file path
-file_path = os.path.join("optimizar","params_variables.py")
+file_path = os.path.join("testing","params_variables.py")
 
 # Initialize a dictionary to store the variables
 variables = {}
@@ -83,3 +83,4 @@ db_path = base_path + 'db/'
 storage_name = "mysql+mysqldb://{u}:{p}@{ip}:3306/optuna_rf_db".format(p=urllib.parse.quote_plus(os.getenv("password")), u = os.getenv("usersrv"), ip = os.getenv("ip"))
 
 # %%
+

@@ -9,7 +9,6 @@ import lightgbm as lgb
 import optuna
 from optuna.visualization import plot_optimization_history, plot_param_importances, plot_slice, plot_contour
 from time import time
-import pickle
 import os
 from dotenv import load_dotenv
 import urllib
