@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 import urllib
 import lgbm_globales
 import funciones_lgbm
+from datetime import datetime
 
 # init time
 start_time = time()
@@ -52,7 +53,7 @@ if not os.path.exists(path_modelos):
 #%% write log file with study name and time of start
 with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
     f.write(f'Study: {lgbm_globales.study_name}\n')
-    f.write(f'Start time: {start_time}\n')
+    f.write(f'Start time: {datetime.fromtimestamp(start_time).strftime('%Y-%m-%d %H:%M:%S')}\n')
 
 
 
@@ -110,33 +111,36 @@ def backtesting_lgbm():
             print(f"Entrenando con semilla {semilla}")
 
 
-            model_path = path_modelos + "model-{study}-{trial}-{semilla}.txt".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            model_path = path_modelos + "model-{study}-{trial}-{semilla}.pkl".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
             if os.path.exists(model_path):
                 
                 print(f"Archivo {model_path}. Skipping...")
                 continue
 
-            # train_data = lgb.Dataset("testing/train_data.bin")
+            train_data = lgb.Dataset("testing/train_data.bin")
 
-            start_train_time = time()
+            start_train_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+
+
+            # format time to log file
+
 
             with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
                 f.write(f'Start training seed {semilla}: {start_train_time}\n')
 
-            # model = lgb.train(params,
-            #                 train_data,
-            #                 num_boost_round=best_iter)
+            model = lgb.train(params,
+                            train_data,
+                            num_boost_round=best_iter)
             
-            end_train_time = time()
+            end_train_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
 
             with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
-                f.write(f'Start training seed {semilla}: {end_train_time}\n')
-
-            continue
+                f.write(f'End training seed {semilla}: {end_train_time}\n')
             
-            # save model to file
-            model.save_model(model_path)
+            # Save the model using pickle
+            with open(model_path, 'wb') as f:
+                pickle.dump(model, f)
 
             print("Modelo guardado: "+model_path)
 
