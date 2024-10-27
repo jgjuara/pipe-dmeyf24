@@ -35,9 +35,9 @@ study = optuna.create_study(
 )
 
 
-path_modelos = f'{lgbm_globales.exp_path}/modelos/{lgbm_globales.study_name}'
+path_modelos = f'{lgbm_globales.exp_path}/modelos/{lgbm_globales.study_name}/'
 
-path_csv = f'{lgbm_globales.exp_path}/csv/{lgbm_globales.study_name}'
+path_csv = f'{lgbm_globales.exp_path}/csv/{lgbm_globales.study_name}/'
 
 print(f'Path: {path_modelos}')
 print(f'Path: {path_csv}')
@@ -47,7 +47,7 @@ if not os.path.exists(path_modelos):
     os.makedirs(path_modelos)
 
     # create directory for saving models
-if not os.path.exists(path_modelos):
+if not os.path.exists(path_csv):
     os.makedirs(path_csv)
 
 #%% write log file with study name and time of start
@@ -100,6 +100,11 @@ def backtesting_lgbm():
 
             if os.path.exists(df_path):
                 print("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
+                
+                
+                with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+                    f.write("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
+                
                 continue
 
             ganancia = np.where(y_test_binaria1 == 1, lgbm_globales.ganancia_acierto, 0) - np.where(y_test_binaria1 == 0, lgbm_globales.costo_estimulo, 0)
@@ -115,7 +120,11 @@ def backtesting_lgbm():
 
             if os.path.exists(model_path):
                 
-                print(f"Archivo {model_path}. Skipping...")
+                print(f"Archivo {model_path} ya existe. Skipping...")
+
+                with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+                    f.write(f"Archivo {model_path} ya existe. Skipping...")
+      
                 continue
 
             train_data = lgb.Dataset("testing/train_data.bin")
