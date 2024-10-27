@@ -53,6 +53,8 @@ if not os.path.exists(path_csv):
 #%% write log file with study name and time of start
 with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
     f.write(f'Study: {lgbm_globales.study_name}\n')
+
+with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
     f.write(f'Start time: {datetime.fromtimestamp(start_time).strftime('%Y-%m-%d %H:%M:%S')}\n')
 
 
@@ -86,12 +88,12 @@ def backtesting_lgbm():
 
         print("Testing trial:", i, "params:", trial_params)
 
-        with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+        with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
             f.write(f'Testing trial: {i} \n "params: {trial_params}\n')
         
         best_iter = study.trials[i].user_attrs['best_iter']
 
-        with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+        with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
             f.write(f'Best iter: {best_iter} \n')
         
         for semilla in lgbm_globales.semillas:
@@ -102,7 +104,7 @@ def backtesting_lgbm():
                 print("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
                 
                 
-                with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+                with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
                     f.write("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
                 
                 continue
@@ -122,7 +124,7 @@ def backtesting_lgbm():
                 
                 print(f"Archivo {model_path} ya existe. Skipping...")
 
-                with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+                with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
                     f.write(f"Archivo {model_path} ya existe. Skipping...")
       
                 continue
@@ -135,7 +137,7 @@ def backtesting_lgbm():
             # format time to log file
 
 
-            with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+            with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
                 f.write(f'Start training seed {semilla}: {start_train_time}\n')
 
             model = lgb.train(params,
@@ -144,12 +146,15 @@ def backtesting_lgbm():
             
             end_train_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
 
-            with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+            with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
                 f.write(f'End training seed {semilla}: {end_train_time}\n')
             
             # Save the model using pickle
             with open(model_path, 'wb') as f:
                 pickle.dump(model, f)
+
+            with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
+                f.write(f'Modelo guardado: {model_path}\n')
 
             print("Modelo guardado: "+model_path)
 
