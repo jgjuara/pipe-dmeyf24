@@ -17,6 +17,9 @@ import urllib
 import lgbm_globales
 import funciones_lgbm
 
+# init time
+start_time = time()
+
 #%%
 
 X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, mes_train= lgbm_globales.mes_train, mes_test= lgbm_globales.mes_test)
@@ -31,15 +34,37 @@ study = optuna.create_study(
 )
 
 
+path_modelos = f'{lgbm_globales.exp_path}/modelos/{lgbm_globales.study_name}'
+
+path_csv = f'{lgbm_globales.exp_path}/csv/{lgbm_globales.study_name}'
+
+print(f'Path: {path_modelos}')
+print(f'Path: {path_csv}')
+
+# create directory for saving models
+if not os.path.exists(path_modelos):
+    os.makedirs(path_modelos)
+
+    # create directory for saving models
+if not os.path.exists(path_modelos):
+    os.makedirs(path_csv)
+
+#%% write log file with study name and time of start
+with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+    f.write(f'Study: {lgbm_globales.study_name}\n')
+    f.write(f'Start time: {start_time}\n')
+
+
+
 #%%
 
 train_data = lgb.Dataset(X_train,
                         label=y_train_binaria2,
                         weight=w_train)
 
-if os.path.exists('train_data.bin'):
+if os.path.exists('testing/train_data.bin'):
     print("Archivo train_data.bin ya existe. Borrando...")
-    os.remove('train_data.bin')
+    os.remove('testing/train_data.bin')
 
 train_data.save_binary('testing/train_data.bin')
 
@@ -51,17 +76,26 @@ def backtesting_lgbm():
 
     print("Testing top trials:", lgbm_globales.top_n)
 
+    # log trials to file
+    top_n.to_csv(path_csv + f'top_n_trials_{start_time}.csv', index=False)
+
     for i in top_n:
 
         trial_params = study.trials[i].params
 
         print("Testing trial:", i, "params:", trial_params)
+
+        with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+            f.write(f'Testing trial: {i} \n "params: {trial_params}\n')
         
         best_iter = study.trials[i].user_attrs['best_iter']
+
+        with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+            f.write(f'Best iter: {best_iter} \n')
         
         for semilla in lgbm_globales.semillas:
 
-            df_path = lgbm_globales.modelos_path +'testing/' + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            df_path = path_csv + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
             if os.path.exists(df_path):
                 print("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
@@ -75,16 +109,34 @@ def backtesting_lgbm():
 
             print(f"Entrenando con semilla {semilla}")
 
-            train_data = lgb.Dataset("testing/train_data.bin")
-            
-            model = lgb.train(params,
-                            train_data,
-                            num_boost_round=best_iter)
-            
-            model_path = "model-{study}-{trial}-{semilla}.txt".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
+            model_path = path_modelos + "model-{study}-{trial}-{semilla}.txt".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+
+            if os.path.exists(model_path):
+                
+                print(f"Archivo {model_path}. Skipping...")
+                continue
+
+            # train_data = lgb.Dataset("testing/train_data.bin")
+
+            start_train_time = time()
+
+            with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+                f.write(f'Start training seed {semilla}: {start_train_time}\n')
+
+            # model = lgb.train(params,
+            #                 train_data,
+            #                 num_boost_round=best_iter)
+            
+            end_train_time = time()
+
+            with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
+                f.write(f'Start training seed {semilla}: {end_train_time}\n')
+
+            continue
+            
             # save model to file
-            model.save_model(lgbm_globales.modelos_path + 'testing/' + model_path)
+            model.save_model(model_path)
 
             print("Modelo guardado: "+model_path)
 
