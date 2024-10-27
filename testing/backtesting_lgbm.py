@@ -77,7 +77,7 @@ def backtesting_lgbm():
     print("Testing top trials:", lgbm_globales.top_n)
 
     # log trials to file
-    top_n.to_csv(path_csv + f'top_n_trials_{start_time}.csv', index=False)
+    study.trials_dataframe().sort_values(by="value", ascending=False).iloc[:lgbm_globales.top_n].to_csv(path_csv + f'top_n_trials_{start_time}.csv', index=False)
 
     for i in top_n:
 
