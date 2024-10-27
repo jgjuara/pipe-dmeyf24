@@ -91,7 +91,7 @@ def preparar_data(dbname, mes_train, mes_test, drop_cols=None, sampling = 1):
     y_train_binaria2 = train_data['clase_binaria2']
     w_train = train_data['clase_peso']
 
-    X_test = test_data.drop(['clase_ternaria', 'clase_peso', 'clase_binaria1','clase_binaria2'], axis=1)
+    X_test = test_data.drop(['numero_de_cliente','clase_ternaria', 'clase_peso', 'clase_binaria1','clase_binaria2'], axis=1)
     y_test_binaria1 = test_data['clase_binaria1']
     y_test_class = test_data['clase_ternaria']
     w_test = test_data['clase_peso']

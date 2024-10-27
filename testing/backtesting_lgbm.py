@@ -23,7 +23,7 @@ start_time = time()
 
 #%%
 
-X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, mes_train= lgbm_globales.mes_train, mes_test= lgbm_globales.mes_test)
+X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, mes_train= lgbm_globales.mes_train, mes_test= lgbm_globales.mes_test, sampling= 1)
 
 #%%
 
@@ -105,7 +105,7 @@ def backtesting_lgbm():
                 
                 
                 with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
-                    f.write("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
+                    f.write(f"{datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')} Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv\n'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
                 
                 continue
 
@@ -120,45 +120,47 @@ def backtesting_lgbm():
 
             model_path = path_modelos + "model-{study}-{trial}-{semilla}.pkl".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
-            if os.path.exists(model_path):
-                
-                print(f"Archivo {model_path} ya existe. Skipping...")
-
-                with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
-                    f.write(f"Archivo {model_path} ya existe. Skipping...")
-      
-                continue
-
             train_data = lgb.Dataset("testing/train_data.bin")
-
-            start_train_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
-
 
             # format time to log file
 
+            if os.path.exists(model_path):
+                
+                print(f"Archivo {model_path} ya existe. Loading...")
 
-            with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
-                f.write(f'Start training seed {semilla}: {start_train_time}\n')
+                with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
+                    f.write(f"{datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')} - Archivo {model_path} ya existe. Loading...\n")
+      
+                # load model
+                with open(model_path, 'rb') as f:
+                    model = pickle.load(f)
+            else:
 
-            model = lgb.train(params,
-                            train_data,
-                            num_boost_round=best_iter)
+                start_train_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+
+                with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
+
+                    f.write(f'Start training seed {semilla}: {start_train_time}\n')
+
+                model = lgb.train(params,
+                                train_data,
+                                num_boost_round=best_iter)
+                
+                end_train_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+
+                with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
+                    f.write(f'End training seed {semilla}: {end_train_time}\n')
             
-            end_train_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')
+                # Save the model using pickle
+                with open(model_path, 'wb') as f:
+                    pickle.dump(model, f)
 
-            with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
-                f.write(f'End training seed {semilla}: {end_train_time}\n')
-            
-            # Save the model using pickle
-            with open(model_path, 'wb') as f:
-                pickle.dump(model, f)
+                with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
+                    f.write(f'Modelo guardado: {model_path}\n')
 
-            with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
-                f.write(f'Modelo guardado: {model_path}\n')
+                print("Modelo guardado: "+model_path)
 
-            print("Modelo guardado: "+model_path)
-
-            print("Train terminado")
+                print("Train terminado")
 
             y_pred_lgm = model.predict(X_test)
 
