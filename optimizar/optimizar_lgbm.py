@@ -24,7 +24,7 @@ X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_te
                                                                                                                     dbname=lgbm_globales.dataset_path,
                                                                                                                     mes_train= lgbm_globales.mes_train,
                                                                                                                     mes_test= lgbm_globales.mes_test,
-                                                                                                                    sampling= 0.01)
+                                                                                                                    sampling= lgbm_globales.sampling)
 
 
 
@@ -80,6 +80,8 @@ def objective(trial):
     trial.set_user_attr("best_iter", best_iter)
     trial.set_user_attr("train_months", lgbm_globales.mes_train)
     trial.set_user_attr("seed", int(semilla))
+    trial.set_user_attr("sampling", int(semilla))
+
 
 
     return max_gan * 5 / len(lgbm_globales.mes_train)
