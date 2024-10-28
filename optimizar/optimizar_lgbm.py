@@ -24,7 +24,8 @@ X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_te
                                                                                                                     dbname=lgbm_globales.dataset_path,
                                                                                                                     mes_train= lgbm_globales.mes_train,
                                                                                                                     mes_test= lgbm_globales.mes_test,
-                                                                                                                    sampling= lgbm_globales.sampling)
+                                                                                                                    sampling= 0.01)
+
 
 
 def lgb_gan_eval(y_pred, data):
@@ -45,7 +46,8 @@ def objective(trial):
     'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 1, 4000),
     'feature_fraction' : trial.suggest_float('feature_fraction', 0.005, .9),
     'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.05, .9), 
-    'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3)
+    'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
+    'min_split_gain': trial.suggest_int('min_split_gain', 0, 273000)
     }
 
     semilla = np.random.choice(lgbm_globales.semillas)
