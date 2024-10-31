@@ -26,7 +26,8 @@ X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_te
                                                                                                                     mes_test= lgbm_globales.mes_test,
                                                                                                                     sampling= lgbm_globales.sampling)
 
-
+# filas por mes en X_train
+n_train_rows = X_train.shape[0]/len(lgbm_globales.mes_train +  lgbm_globales.mes_test)
 
 def lgb_gan_eval(y_pred, data):
     weight = data.get_weight()
@@ -40,14 +41,18 @@ def lgb_gan_eval(y_pred, data):
 
 def objective(trial):
 
+    train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
+
+    p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.001, 0.05)
+
     params_objetivo = {
     'num_leaves' : trial.suggest_int('num_leaves', 20, 10000),
-    'learning_rate' : trial.suggest_float('learning_rate', 0.005, 0.4), # mas bajo, más iteraciones necesita
-    'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 1, 4000),
+    'learning_rate' : trial.suggest_float('learning_rate', 0.001, 0.4), # mas bajo, más iteraciones necesita
+    'min_data_in_leaf' : p_min_data_in_leaf*n_train_rows,
     'feature_fraction' : trial.suggest_float('feature_fraction', 0.005, .9),
     'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.05, .9), 
     'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
-    'min_split_gain': trial.suggest_int('min_split_gain', 0, 273000)
+    'min_split_gain': trial.suggest_int('min_split_gain', 1, 40000)
     }
 
     semilla = np.random.choice(lgbm_globales.semillas)
@@ -60,8 +65,6 @@ def objective(trial):
     print(f"Trial Params: {params}")
 
     learning_rate = params['learning_rate']
-
-    train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
 
     cv_results = lgb.cv(
         params,

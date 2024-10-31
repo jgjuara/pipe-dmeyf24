@@ -30,12 +30,12 @@ with open(file_path, 'r') as file:
     exec(file_content, {}, variables)
 
 # Extract the variables
-mes_train = variables.get('mes_train', [])
-mes_test = variables.get('mes_test', [])
-n_envios = variables.get('n_envios', 0)
-sampling = variables.get('sampling', 0.0)
-study_name = variables.get('study_name', "")
-intentos = variables.get('intentos', 100)
+mes_train = variables.get('mes_train', None)
+mes_test = variables.get('mes_test', None)
+n_envios = variables.get('n_envios', None)
+sampling = variables.get('sampling', None)
+study_name = variables.get('study_name', None)
+intentos = variables.get('intentos', None)
 
 #%%
 
@@ -45,6 +45,7 @@ print("mes_test:", mes_test)
 print("n_envios:", n_envios)
 print("sampling:", sampling)
 print("study_name:", study_name)
+print("intentos: ", intentos)
 
 # parametros a setear
 dataset_path = 'compe_02'
