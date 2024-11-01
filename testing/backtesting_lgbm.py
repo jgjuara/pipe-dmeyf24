@@ -21,6 +21,9 @@ from datetime import datetime
 # init time
 start_time = time()
 
+# mes test
+nombre_mes_test = "mayo"
+
 #%%
 
 X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, mes_train= lgbm_globales.mes_train, mes_test= lgbm_globales.mes_test, sampling= 1)
@@ -57,7 +60,8 @@ with open(path_modelos + f'/log_{start_time}.txt', 'w') as f:
 with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
     f.write(f'Start time: {datetime.fromtimestamp(start_time).strftime('%Y-%m-%d %H:%M:%S')}\n')
 
-
+with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
+    f.write(f'Test contra mes: {nombre_mes_test}\n')
 
 #%%
 
@@ -98,14 +102,14 @@ def backtesting_lgbm():
         
         for semilla in lgbm_globales.semillas:
 
-            df_path = path_csv + 'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            df_path = path_csv + 'df_cut_point-{study}-{trial}-{semilla}-{nombre_mes_test}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
             if os.path.exists(df_path):
-                print("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
+                print("Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}-{nombre_mes_test}.csv'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
                 
                 
                 with open(path_modelos + f'/log_{start_time}.txt', 'a') as f:
-                    f.write(f"{datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')} Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}.csv\n'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
+                    f.write(f"{datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S')} Archivo testing ya existe: "+'df_cut_point-{study}-{trial}-{semilla}-{nombre_mes_test}.csv\n'.format(study = lgbm_globales.study_name, trial = i, semilla = semilla))
                 
                 continue
 
@@ -118,7 +122,7 @@ def backtesting_lgbm():
             print(f"Entrenando con semilla {semilla}")
 
 
-            model_path = path_modelos + "model-{study}-{trial}-{semilla}.pkl".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
+            model_path = path_modelos + "model-{study}-{trial}-{semilla}-{nombre_mes_test}.pkl".format(study = lgbm_globales.study_name, trial = i, semilla = semilla)
 
             train_data = lgb.Dataset("testing/train_data.bin")
 
