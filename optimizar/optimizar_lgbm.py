@@ -29,6 +29,14 @@ X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_te
 # filas por mes en X_train
 n_train_rows = X_train.shape[0]/len(lgbm_globales.mes_train +  lgbm_globales.mes_test)
 
+# cols selection
+len(X_train.columns)
+# monotone restrictions
+
+# polinomials combinations
+
+
+
 def lgb_gan_eval(y_pred, data):
     weight = data.get_weight()
     ganancia = np.where(weight == 1.00002, lgbm_globales.ganancia_acierto, 0) - np.where(weight < 1.00002, lgbm_globales.costo_estimulo, 0)
@@ -40,6 +48,7 @@ def lgb_gan_eval(y_pred, data):
 
 
 def objective(trial):
+
 
     train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
 
@@ -97,15 +106,13 @@ study = optuna.create_study(
     load_if_exists=True
 )
 
-nrows = X_train.shape[0]
 
-ds_params = {'bin_construct_sample_cnt': nrows * 0.6}
-
-train_data = lgb.Dataset(X_train,
+if not os.path.exists(f"train_data_{lgbm_globales.study_name}.bin"):
+    train_data = lgb.Dataset(X_train,
                             label=y_train_binaria2, # eligir la clase
                             weight=w_train)
 
-train_data.save_binary(f"train_data_{lgbm_globales.study_name}.bin")
+    train_data.save_binary(f"train_data_{lgbm_globales.study_name}.bin")
 
 del X_train, X_test
 
