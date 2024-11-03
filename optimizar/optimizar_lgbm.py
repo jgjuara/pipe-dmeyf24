@@ -52,16 +52,18 @@ def objective(trial):
 
     train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
 
-    # p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.001, 0.05)
+    p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.001, 0.01)
 
     params_objetivo = {
     'num_leaves' : trial.suggest_int('num_leaves', 500, 10000),
     'learning_rate' : trial.suggest_float('learning_rate', 0.005, 0.4), # mas bajo, más iteraciones necesita
-    'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 50, 8000),
-    'feature_fraction' : trial.suggest_float('feature_fraction', 0.7, .9),
-    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.7, .9), 
+    # 'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 50, 8000),
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    'n_estimators': trial.suggest_int('n_estimators', 500, 10000),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
     'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
-    'min_split_gain': 7000
+    'min_split_gain': trial.suggest_int('min_split_gain', 7000, 35000),
     }
 
     semilla = np.random.choice(lgbm_globales.semillas)
