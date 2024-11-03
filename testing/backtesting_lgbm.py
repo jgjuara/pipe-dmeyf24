@@ -28,6 +28,15 @@ nombre_mes_test = "mayo"
 
 X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_test_binaria1, w_test = funciones_lgbm.preparar_data(lgbm_globales.dataset_path, mes_train= lgbm_globales.mes_train, mes_test= lgbm_globales.mes_test, sampling= 1)
 
+#%% drop features from X_train and X_test
+
+features_to_drop = pd.read_csv("features_to_drop.csv").fname.tolist()
+
+X_train = X_train.drop(features_to_drop, axis=1)
+X_test = X_test.drop(features_to_drop, axis=1)
+
+
+
 #%%
 
 study = optuna.create_study(
@@ -49,7 +58,7 @@ print(f'Path: {path_csv}')
 if not os.path.exists(path_modelos):
     os.makedirs(path_modelos)
 
-    # create directory for saving models
+    # create directory for saving modelsy
 if not os.path.exists(path_csv):
     os.makedirs(path_csv)
 
