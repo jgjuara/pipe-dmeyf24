@@ -30,7 +30,7 @@ X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_te
 
 #%% drop features from X_train and X_test
 
-features_to_drop = pd.read_csv("features_to_drop.csv").fname.tolist()
+features_to_drop = pd.read_csv("testing/features_to_drop.csv").fname.tolist()
 
 X_train = X_train.drop(features_to_drop, axis=1)
 X_test = X_test.drop(features_to_drop, axis=1)
