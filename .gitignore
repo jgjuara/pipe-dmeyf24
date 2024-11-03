@@ -4,6 +4,8 @@
 *.db
 *.pyc
 **.png
+testing/.tmp/*/*.csv
+testing/.tmp/*/*.pkl
 .Rproj**
 .Rhistory
 .Rproj.user
