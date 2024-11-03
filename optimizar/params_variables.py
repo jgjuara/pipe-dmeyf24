@@ -3,4 +3,4 @@ mes_test = [202105]
 n_envios = 10
 intentos = 100
 sampling = 1
-study_name = "sinsampling_basico_min_gain7000"
+study_name = "sinsampling_basico_min_gain7000_minleaf_500"
