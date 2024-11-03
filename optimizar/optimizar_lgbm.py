@@ -61,7 +61,7 @@ def objective(trial):
     'feature_fraction' : trial.suggest_float('feature_fraction', 0.005, .9),
     'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.05, .9), 
     'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
-    'min_split_gain': trial.suggest_int('min_split_gain', 1, 40000)
+    'min_split_gain': 7000
     }
 
     semilla = np.random.choice(lgbm_globales.semillas)
