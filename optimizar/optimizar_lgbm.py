@@ -115,7 +115,7 @@ if not os.path.exists(f"train_data_{lgbm_globales.study_name}.bin"):
                             weight=w_train,
                             params = {
                             'max_bin' : 255,
-                            'feature_pre_filter': False,
+                            'feature_pre_filter': True,
                             'seed' : 42
                             }
                            )
