@@ -114,7 +114,7 @@ if not os.path.exists(f"train_data_{lgbm_globales.study_name}.bin"):
                             label=y_train_binaria2, # eligir la clase
                             weight=w_train,
                             params = {
-                            'max_bin' : 200,
+                            'max_bin' : 255,
                             'feature_pre_filter': False,
                             'seed' : 42
                             }
