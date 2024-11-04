@@ -80,7 +80,7 @@ def objective(trial):
     cv_results = lgb.cv(
         params,
         train_data,
-        num_boost_round= 100000, # modificar, subit y subir... y descomentar la línea inferior
+        num_boost_round= 10000, # modificar, subit y subir... y descomentar la línea inferior
         callbacks=[lgb.early_stopping(stopping_rounds= int(200 + 5 / learning_rate ))],
         feval=lgb_gan_eval,
         stratified=True,
