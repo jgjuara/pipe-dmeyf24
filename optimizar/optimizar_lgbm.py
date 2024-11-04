@@ -55,7 +55,7 @@ def objective(trial):
     p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.0001, 0.002)
 
     params_objetivo = {
-    'num_leaves' : trial.suggest_int('num_leaves', 500, 100000),
+    'num_leaves' : trial.suggest_int('num_leaves', 100, 10000),
     'learning_rate' : trial.suggest_float('learning_rate', 0.001, 0.05), # mas bajo, más iteraciones necesita
     # 'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 50, 8000),
     'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
@@ -80,7 +80,7 @@ def objective(trial):
     cv_results = lgb.cv(
         params,
         train_data,
-        num_boost_round= 10000, # modificar, subit y subir... y descomentar la línea inferior
+        num_boost_round= 50000, # modificar, subit y subir... y descomentar la línea inferior
         callbacks=[lgb.early_stopping(stopping_rounds= int(200 + 5 / learning_rate ))],
         feval=lgb_gan_eval,
         stratified=True,
@@ -115,7 +115,7 @@ if not os.path.exists(f"train_data_{lgbm_globales.study_name}.bin"):
                             weight=w_train,
                             params = {
                             'max_bin' : 255,
-                            'feature_pre_filter': True,
+                            'feature_pre_filter': False,
                             'seed' : 42
                             }
                            )
