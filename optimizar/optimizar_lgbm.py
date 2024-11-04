@@ -52,7 +52,7 @@ def objective(trial):
 
     train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
 
-    p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.0001, 0.002)
+    p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.001, 0.01)
 
     params_objetivo = {
     'num_leaves' : trial.suggest_int('num_leaves', 100, 10000),
@@ -80,7 +80,7 @@ def objective(trial):
     cv_results = lgb.cv(
         params,
         train_data,
-        num_boost_round= 50000, # modificar, subit y subir... y descomentar la línea inferior
+        num_boost_round= 500000, # modificar, subit y subir... y descomentar la línea inferior
         callbacks=[lgb.early_stopping(stopping_rounds= int(200 + 5 / learning_rate ))],
         feval=lgb_gan_eval,
         stratified=True,
