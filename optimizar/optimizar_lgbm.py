@@ -52,18 +52,18 @@ def objective(trial):
 
     train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
 
-    p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.001, 0.01)
+    p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.0001, 0.002)
 
     params_objetivo = {
-    'num_leaves' : trial.suggest_int('num_leaves', 500, 10000),
+    'num_leaves' : trial.suggest_int('num_leaves', 500, 100000),
     'learning_rate' : trial.suggest_float('learning_rate', 0.001, 0.05), # mas bajo, más iteraciones necesita
     # 'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 50, 8000),
     'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
-    'n_estimators': trial.suggest_int('n_estimators', 10000, 100000),
+    # 'n_estimators': trial.suggest_int('n_estimators', 10000, 100000),
     'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
     'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
     'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
-    'min_split_gain': trial.suggest_int('min_split_gain', 2000, 14000),
+    'min_split_gain': 1,
     }
 
     semilla = np.random.choice(lgbm_globales.semillas)
@@ -80,7 +80,7 @@ def objective(trial):
     cv_results = lgb.cv(
         params,
         train_data,
-        # num_boost_round=lgbm_globales.boost_rounds, # modificar, subit y subir... y descomentar la línea inferior
+        num_boost_round= 100000, # modificar, subit y subir... y descomentar la línea inferior
         callbacks=[lgb.early_stopping(stopping_rounds= int(200 + 5 / learning_rate ))],
         feval=lgb_gan_eval,
         stratified=True,
@@ -112,7 +112,13 @@ study = optuna.create_study(
 if not os.path.exists(f"train_data_{lgbm_globales.study_name}.bin"):
     train_data = lgb.Dataset(X_train,
                             label=y_train_binaria2, # eligir la clase
-                            weight=w_train)
+                            weight=w_train,
+                            params = {
+                            'max_bin' : 200,
+                            'feature_pre_filter': False,
+                            'seed' : 42
+                            }
+                           )
 
     train_data.save_binary(f"train_data_{lgbm_globales.study_name}.bin")
 

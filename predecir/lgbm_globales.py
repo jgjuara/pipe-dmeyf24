@@ -20,8 +20,8 @@ from pathlib import Path
 
 # parametros a setear
 dataset_path = 'compe_02'
-mes_train = [202012, 202012,202101,202102,202103, 202104, 202105]
-mes_test = [202106]
+mes_train = [202101,202102,202103, 202104, 202105, 202106]
+mes_test = [202108]
 sampling = 1
 study_name = "experimento_linea_base"
 boost_rounds = 10000
