@@ -82,7 +82,7 @@ def objective(trial):
         params,
         train_data,
         num_boost_round= 500000, # modificar, subit y subir... y descomentar la línea inferior
-        callbacks=[lgb.early_stopping(stopping_rounds= int(500 + 5 / learning_rate ))],
+        callbacks=[lgb.early_stopping(stopping_rounds= int(100 + 5 / learning_rate ))],
         feval=lgb_gan_eval,
         stratified=True,
         nfold=5,
