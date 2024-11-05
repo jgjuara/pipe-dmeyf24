@@ -87,3 +87,139 @@ Probamos con min_gain_split = 7000
 
 ------------
 
+Con min_gain_split = 7000 caimos en un undersampling furioso donde ni en train superamos los 70millones. Volvemos a las bases
+
+exp101 = sinsampling_basico
+este exp esta mal, el max de num leaves es demasiado alto
+    meses = mes_train = [202011,202012,202101,202102,202103, 202104]
+    con sampling = 1
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 100, 10000),
+    'learning_rate' : trial.suggest_float('learning_rate', 0.001, 0.05), # mas bajo, más iteraciones necesita
+    # 'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 50, 8000),
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    # 'n_estimators': trial.suggest_int('n_estimators', 10000, 100000),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
+    'min_split_gain': 1,
+    }
+
+exp102 = sampling_basico_50perc
+este exp esta mal, el max de num leaves es demasiado alto
+    meses = mes_train = [202011,202012,202101,202102,202103, 202104]
+    con sampling = 0.5
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 100, 10000),
+    'learning_rate' : trial.suggest_float('learning_rate', 0.001, 0.05), # mas bajo, más iteraciones necesita
+    # 'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 50, 8000),
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    # 'n_estimators': trial.suggest_int('n_estimators', 10000, 100000),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
+    'min_split_gain': 1,
+    }
+
+
+----------
+usamos
+cv_results = lgb.cv(
+    params,
+    train_data,
+    num_boost_round= 500000, # modificar, subit y subir... y descomentar la línea inferior
+    callbacks=[lgb.early_stopping(stopping_rounds= int(500 + 5 / learning_rate ))],
+    feval=lgb_gan_eval,
+    stratified=True,
+    nfold=5,
+    seed = semilla
+)
+
+exp103
+    meses = mes_train = [202011,202012,202101,202102,202103, 202104]
+    con sampling = 1
+
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
+    'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.05, 0.3),
+    'min_split_gain': 1,
+    'bagging_fraction' : trial.suggest_float('bagging_fraction', 0.1, .9),
+    'bagging_freq': 2,
+    'bagging_seed': semilla,
+    }
+
+exp104
+    meses = mes_train = [202011,202012,202101,202102,202103, 202104]
+    con sampling = 0.5
+
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
+    'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.05, 0.3),
+    'min_split_gain': 1,
+    'bagging_fraction' : trial.suggest_float('bagging_fraction', 0.1, .9),
+    'bagging_freq': 2,
+    'bagging_seed': semilla,
+    }
+exp105
+
+    meses = mes_train = [202011,202012,202101,202102,202103, 202104]
+    con sampling = 0.75
+
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
+    'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.05, 0.3),
+    'min_split_gain': 1,
+    'bagging_fraction' : trial.suggest_float('bagging_fraction', 0.1, .9),
+    'bagging_freq': 2,
+    'bagging_seed': semilla,
+    }
+
+exp106
+
+    meses = mes_train = [202011,202012,202101,202102,202103, 202104]
+    con sampling = 0.25
+
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
+    'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.05, 0.3),
+    'min_split_gain': 1,
+    'bagging_fraction' : trial.suggest_float('bagging_fraction', 0.1, .9),
+    'bagging_freq': 2,
+    'bagging_seed': semilla,
+    }
+
+exp107
+
+    meses = mes_train = [202011,202012,202101,202102,202103, 202104]
+    con sampling = 0.1
+
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
+    'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
+    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
+    'drop_rate': trial.suggest_float('drop_rate', 0.05, 0.3),
+    'min_split_gain': 1,
+    'bagging_fraction' : trial.suggest_float('bagging_fraction', 0.1, .9),
+    'bagging_freq': 2,
+    'bagging_seed': semilla,
+    }
+
+
