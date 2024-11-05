@@ -52,7 +52,7 @@ def objective(trial):
 
     train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
 
-    p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.0001, 0.01)
+    p_min_data_in_leaf = round(trial.suggest_float('p_min_data_in_leaf', 0.0001, 0.01), 4)
 
     semilla = np.random.choice(lgbm_globales.semillas)
 
@@ -60,11 +60,11 @@ def objective(trial):
     'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
     'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
     'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
-    'feature_fraction' : trial.suggest_float('feature_fraction', 0.3, .9),
-    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.3, .9), 
-    'drop_rate': trial.suggest_float('drop_rate', 0.05, 0.3),
+    'feature_fraction' : round(trial.suggest_float('feature_fraction', 0.3, .9), 3),
+    'feature_fraction_bynode' : round(trial.suggest_float('feature_fraction_bynode', 0.3, .9), 3), 
+    'drop_rate': round(trial.suggest_float('drop_rate', 0.05, 0.3),3),
     'min_split_gain': 1,
-    'bagging_fraction' : trial.suggest_float('bagging_fraction', 0.1, .9),
+    'bagging_fraction' : round(trial.suggest_float('bagging_fraction', 0.1, .9), 3),
     'bagging_freq': 2,
     'bagging_seed': semilla,
     }
