@@ -54,6 +54,8 @@ def objective(trial):
 
     p_min_data_in_leaf = trial.suggest_float('p_min_data_in_leaf', 0.0001, 0.01)
 
+    semilla = np.random.choice(lgbm_globales.semillas)
+
     params_objetivo = {
     'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
     'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
@@ -66,8 +68,6 @@ def objective(trial):
     'bagging_freq': 2,
     'bagging_seed': semilla,
     }
-
-    semilla = np.random.choice(lgbm_globales.semillas)
 
     params_objetivo['seed'] = semilla
 
