@@ -152,6 +152,10 @@ exp103
     'bagging_seed': semilla,
     }
 
+Para hacer undersampling el muestreo debería repetirse en cada iteracion de la BO
+Para eso debería hacer que la seleccion ocurra directametne sobre X_train, w_train y y_binaria2 armando un indice y muestreando el indice
+Para hacerlo estratificado por y solo sobre los continua tengo que 1) no dropear el foto_mes y 2) el indice sobre w_train y trasladarlo a los otros sets.
+
 exp104
     meses = mes_train = [202011,202012,202101,202102,202103, 202104]
     con sampling = 0.5
