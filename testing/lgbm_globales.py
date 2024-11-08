@@ -31,20 +31,21 @@ with open(file_path, 'r') as file:
     exec(file_content, {}, variables)
 
 # Extract the variables
-mes_train = variables.get('mes_train', [])
-mes_test = variables.get('mes_test', [])
-n_envios = variables.get('n_envios', 0)
-sampling = variables.get('sampling', 0.0)
-study_name = variables.get('study_name', "")
-intentos = variables.get('intentos', 100)
+mes_train = variables.get('mes_train', None)
+mes_test = variables.get('mes_test', None)
+n_envios = variables.get('n_envios', None)
+sampling = variables.get('sampling', None)
+study_name = variables.get('study_name', None)
+intentos = variables.get('intentos', None)
+mes_test = variables.get('nombre_mes_test', None)
 
 # parametros a setear
 dataset_path = 'compe_02'
-top_n = 3
-boost_rounds = 10000
-optimizar = True
-min_envios = 8000
-max_envios = 14000
+top_n = 2
+# boost_rounds = 10000
+# optimizar = True
+min_envios = 4000
+max_envios = 16000
 paso_envios = (max_envios - min_envios) / n_envios
 
 #

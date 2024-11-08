@@ -22,7 +22,7 @@ from datetime import datetime
 start_time = time()
 
 # mes test
-nombre_mes_test = "mayo"
+nombre_mes_test = lgbm_globales.nombre_mes_test
 
 #%%
 
