@@ -37,7 +37,7 @@ n_envios = variables.get('n_envios', None)
 sampling = variables.get('sampling', None)
 study_name = variables.get('study_name', None)
 intentos = variables.get('intentos', None)
-mes_test = variables.get('nombre_mes_test', None)
+nombre_mes_test = variables.get('nombre_mes_test', None)
 
 # parametros a setear
 dataset_path = 'compe_02'
