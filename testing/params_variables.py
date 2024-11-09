@@ -4,4 +4,4 @@ nombre_mes_test = 'mayo'
 n_envios = 10
 intentos = 100
 sampling = 1
-study_name = "exp103"
+study_name = "exp104"
