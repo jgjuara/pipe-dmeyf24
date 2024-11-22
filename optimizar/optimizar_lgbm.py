@@ -26,6 +26,15 @@ X_train, y_train_binaria1, y_train_binaria2, w_train, X_test, y_test_class, y_te
                                                                                                                     mes_test= lgbm_globales.mes_test,
                                                                                                                     sampling= lgbm_globales.sampling)
 
+# filas por mes en X_train
+n_train_rows = X_train.shape[0]/len(lgbm_globales.mes_train +  lgbm_globales.mes_test)
+
+# cols selection
+len(X_train.columns)
+# monotone restrictions
+
+# polinomials combinations
+
 
 
 def lgb_gan_eval(y_pred, data):
@@ -40,17 +49,25 @@ def lgb_gan_eval(y_pred, data):
 
 def objective(trial):
 
-    params_objetivo = {
-    'num_leaves' : trial.suggest_int('num_leaves', 20, 10000),
-    'learning_rate' : trial.suggest_float('learning_rate', 0.005, 0.4), # mas bajo, más iteraciones necesita
-    'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 1, 4000),
-    'feature_fraction' : trial.suggest_float('feature_fraction', 0.005, .9),
-    'feature_fraction_bynode' : trial.suggest_float('feature_fraction_bynode', 0.05, .9), 
-    'drop_rate': trial.suggest_float('drop_rate', 0.005, 0.3),
-    'min_split_gain': trial.suggest_int('min_split_gain', 0, 273000)
-    }
+
+    train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
+
+    p_min_data_in_leaf = round(trial.suggest_float('p_min_data_in_leaf', 0.0001, 0.01), 4)
 
     semilla = np.random.choice(lgbm_globales.semillas)
+
+    params_objetivo = {
+    'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
+    'learning_rate' : 0.05, # mas bajo, más iteraciones necesita
+    'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
+    'feature_fraction' : round(trial.suggest_float('feature_fraction', 0.3, .9), 3),
+    'feature_fraction_bynode' : round(trial.suggest_float('feature_fraction_bynode', 0.3, .9), 3), 
+    'drop_rate': round(trial.suggest_float('drop_rate', 0.05, 0.3),3),
+    'min_split_gain': 1,
+    'bagging_fraction' : round(trial.suggest_float('bagging_fraction', 0.1, .9), 3),
+    'bagging_freq': 2,
+    'bagging_seed': semilla,
+    }
 
     params_objetivo['seed'] = semilla
 
@@ -61,16 +78,15 @@ def objective(trial):
 
     learning_rate = params['learning_rate']
 
-    train_data = lgb.Dataset(data = f"train_data_{lgbm_globales.study_name}.bin")
-
     cv_results = lgb.cv(
         params,
         train_data,
-        num_boost_round=lgbm_globales.boost_rounds, # modificar, subit y subir... y descomentar la línea inferior
-        callbacks=[lgb.early_stopping(stopping_rounds= int(50 + 5 / learning_rate ))],
+        num_boost_round= 500000, # modificar, subit y subir... y descomentar la línea inferior
+        callbacks=[lgb.early_stopping(stopping_rounds= int(100 + 5 / learning_rate ))],
         feval=lgb_gan_eval,
         stratified=True,
-        nfold=5
+        nfold=5,
+        seed = semilla
     )
 
     max_gan = max(cv_results['valid gan_eval-mean'])
@@ -80,7 +96,7 @@ def objective(trial):
     trial.set_user_attr("best_iter", best_iter)
     trial.set_user_attr("train_months", lgbm_globales.mes_train)
     trial.set_user_attr("seed", int(semilla))
-    trial.set_user_attr("sampling", int(semilla))
+    trial.set_user_attr("sampling", int(lgbm_globales.sampling))
 
 
 
@@ -94,15 +110,19 @@ study = optuna.create_study(
     load_if_exists=True
 )
 
-nrows = X_train.shape[0]
 
-ds_params = {'bin_construct_sample_cnt': nrows * 0.6}
-
-train_data = lgb.Dataset(X_train,
+if not os.path.exists(f"train_data_{lgbm_globales.study_name}.bin"):
+    train_data = lgb.Dataset(X_train,
                             label=y_train_binaria2, # eligir la clase
-                            weight=w_train)
+                            weight=w_train,
+                            params = {
+                            'max_bin' : 255,
+                            'feature_pre_filter': False,
+                            'seed' : 42
+                            }
+                           )
 
-train_data.save_binary(f"train_data_{lgbm_globales.study_name}.bin")
+    train_data.save_binary(f"train_data_{lgbm_globales.study_name}.bin")
 
 del X_train, X_test
 
