@@ -58,7 +58,7 @@ def objective(trial):
 
     params_objetivo = {
     'num_leaves' : trial.suggest_int('num_leaves', 10, 500),
-    'learning_rate' : 0.005, # mas bajo, más iteraciones necesita
+    'learning_rate' : 0.01, # mas bajo, más iteraciones necesita
     # 'min_data_in_leaf' : int(p_min_data_in_leaf * n_train_rows),
     'min_data_in_leaf' : trial.suggest_int('min_data_in_leaf', 50, 5000),
     'feature_fraction' : round(trial.suggest_float('feature_fraction', 0.1, .9), 3),
